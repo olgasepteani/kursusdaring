@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard Data Kursus Daring LKP</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --primary: #1a56db;
+    --primary-light: #e8f0fe;
+    --primary-dark: #1239a5;
+    --accent: #f59e0b;
+    --accent2: #10b981;
+    --accent3: #ef4444;
+    --accent4: #8b5cf6;
+    --accent5: #06b6d4;
+    --bg: #f0f4ff;
+    --bg2: #ffffff;
+    --surface: #ffffff;
+    --border: #dde3f0;
+    --text: #111827;
+    --text2: #4b5563;
+    --text3: #9ca3af;
+    --shadow: 0 2px 16px rgba(26,86,219,0.08);
+    --shadow-lg: 0 8px 32px rgba(26,86,219,0.14);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1239a5 0%, #1a56db 55%, #2563eb 100%);
+    color: #fff;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(26,86,219,0.3);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .header h1 { font-size: 1.18rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
+  .header h1 span { font-weight: 400; opacity: 0.8; font-size: 0.82rem; display: block; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .sync-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sync-btn:hover { background: rgba(255,255,255,0.27); }
+  .sync-status { font-size: 0.75rem; opacity: 0.75; }
+
+  /* MAIN */
+  .main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 22px;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .filter-bar label { font-size: 0.82rem; font-weight: 600; color: var(--text2); white-space: nowrap; }
+  .filter-bar select, .filter-bar input {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border 0.2s;
+    min-width: 160px;
+  }
+  .filter-bar select:focus, .filter-bar input:focus { border-color: var(--primary); }
+  .filter-bar .search-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .filter-bar input[type="text"] { min-width: 220px; }
+  .reset-filter {
+    background: none; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 7px 14px;
+    font-family: inherit; font-size: 0.82rem; font-weight: 600;
+    color: var(--text2); cursor: pointer; transition: all 0.2s;
+  }
+  .reset-filter:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* STAT CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 18px 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .stat-card.c1::before { background: var(--accent2); }
+  .stat-card.c2::before { background: var(--accent); }
+  .stat-card.c3::before { background: var(--accent3); }
+  .stat-card.c4::before { background: var(--primary); }
+  .stat-card.c5::before { background: var(--accent4); }
+  .stat-card.c6::before { background: var(--accent5); }
+  .stat-card.c7::before { background: #f43f5e; }
+  .stat-card.c8::before { background: #84cc16; }
+  .stat-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; margin-bottom: 10px;
+  }
+  .c1 .stat-icon { background: #d1fae5; }
+  .c2 .stat-icon { background: #fef3c7; }
+  .c3 .stat-icon { background: #fee2e2; }
+  .c4 .stat-icon { background: var(--primary-light); }
+  .c5 .stat-icon { background: #ede9fe; }
+  .c6 .stat-icon { background: #cffafe; }
+  .c7 .stat-icon { background: #ffe4e6; }
+  .c8 .stat-icon { background: #ecfccb; }
+  .stat-num {
+    font-size: 2rem; font-weight: 800; line-height: 1;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--text2); font-weight: 500; line-height: 1.3; }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .form-card-header {
+    background: linear-gradient(90deg, #1a56db 0%, #2563eb 100%);
+    color: #fff;
+    padding: 16px 24px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-body { padding: 24px; }
+  .form-section-label {
+    font-size: 0.78rem; font-weight: 700; color: var(--primary);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 20px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  .form-section-label:first-child { margin-top: 0; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: 0.8rem; font-weight: 600; color: var(--text2);
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-family: inherit;
+    font-size: 0.87rem;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+    background: #fff;
+  }
+  .form-group input.auto-filled { background: #e8f0fe; border-color: var(--primary); }
+  .form-group textarea { min-height: 70px; resize: vertical; }
+
+  /* PROGRAM KETERAMPILAN HIERARKIS */
+  #programGrid { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+  .bidang-group { border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .bidang-header {
+    display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(90deg, #1239a5, #2563eb);
+    color: #fff;
+    padding: 9px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.83rem; font-weight: 700;
+    transition: opacity 0.15s;
+  }
+  .bidang-header:hover { opacity: 0.9; }
+  .bidang-header.open { background: linear-gradient(90deg, #0f2e8a, #1a56db); }
+  .bidang-num {
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800; flex-shrink: 0;
+  }
+  .bidang-name { flex: 1; }
+  .bidang-arrow { font-size: 0.7rem; opacity: 0.8; }
+  .bidang-body { padding: 10px 12px; background: #f8faff; display: flex; flex-direction: column; gap: 8px; }
+
+  .program-block { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .program-label-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    background: #eff3ff;
+    border-bottom: 1px solid var(--border);
+  }
+  .program-label-row input[type="checkbox"] { accent-color: var(--primary); width: 14px; height: 14px; flex-shrink:0; }
+  .program-name { font-size: 0.8rem; font-weight: 700; color: var(--primary); cursor: pointer; }
+
+  .jenis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 5px;
+    padding: 8px 10px;
+  }
+  .check-item {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: border 0.2s, background 0.2s;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .check-item input[type="checkbox"] { accent-color: var(--primary); width: 13px; height: 13px; flex-shrink:0; }
+  .check-item:has(input:checked) { border-color: var(--primary); background: var(--primary-light); }
+
+  /* STATUS RADIO */
+  .status-group { display: flex; flex-direction: column; gap: 7px; }
+  .radio-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 13px;
+    cursor: pointer;
+    font-size: 0.84rem; font-weight: 500;
+    transition: border 0.2s, background 0.2s;
+  }
+  .radio-item input[type="radio"] { accent-color: var(--primary); width: 15px; height: 15px; }
+  .radio-item:has(input:checked) { border-color: var(--primary); background: var(--primary-light); }
+  .bimtek-toggle {
+    display: flex; gap: 10px; margin-top: 4px;
+  }
+  .toggle-btn {
+    flex: 1; padding: 9px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 0.84rem; font-weight: 600;
+    cursor: pointer; background: var(--bg); color: var(--text2);
+    transition: all 0.2s;
+  }
+  .toggle-btn.active-yes { border-color: var(--accent2); background: #d1fae5; color: #065f46; }
+  .toggle-btn.active-no { border-color: var(--accent3); background: #fee2e2; color: #991b1b; }
+
+  /* FORM ACTIONS */
+  .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-save {
+    background: linear-gradient(90deg, #1239a5, #1a56db);
+    color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    padding: 11px 28px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-reset {
+    background: var(--bg);
+    color: var(--text2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 22px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--text);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 0.86rem; font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    opacity: 0; transform: translateY(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+    max-width: 320px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: var(--accent2); }
+  .toast.error { background: var(--accent3); }
+  .toast.info { background: var(--primary); }
+
+  /* TABLE */
+  .table-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .table-card-header {
+    background: linear-gradient(90deg, #1239a5 0%, #2563eb 100%);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .table-card-header h3 { font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+  .table-count {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .table-export {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; border-radius: var(--radius-sm);
+    padding: 5px 14px; font-family: inherit;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .table-export:hover { background: rgba(255,255,255,0.25); }
+  .table-wrapper { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  thead tr {
+    background: #f8faff;
+    border-bottom: 2px solid var(--border);
+  }
+  thead th {
+    padding: 11px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text2);
+    white-space: nowrap;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: #f0f4ff; }
+  tbody td { padding: 10px 12px; color: var(--text); vertical-align: middle; }
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-gray { background: #f3f4f6; color: #6b7280; }
+  .badge-purple { background: #ede9fe; color: #5b21b6; }
+  .td-npsn { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text2); }
+  .edit-btn {
+    background: var(--primary-light); color: var(--primary);
+    border: none; border-radius: 6px; padding: 4px 10px;
+    font-family: inherit; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .edit-btn:hover { background: var(--primary); color: #fff; }
+  .del-btn {
+    background: #fee2e2; color: var(--accent3);
+    border: none; border-radius: 6px; padding: 4px 10px;
+    font-family: inherit; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; margin-left: 4px;
+  }
+  .del-btn:hover { background: var(--accent3); color: #fff; }
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--text3); font-size: 0.9rem;
+  }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+  /* CONFIG PANEL */
+  .config-bar {
+    background: #fffbeb;
+    border: 1.5px dashed var(--accent);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 22px;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .config-bar label { font-size: 0.82rem; font-weight: 700; color: #92400e; white-space: nowrap; }
+  .config-bar input {
+    border: 1.5px solid #fcd34d;
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    flex: 1; min-width: 300px;
+    transition: border 0.2s;
+  }
+  .config-bar input:focus { border-color: var(--accent); }
+  .config-save {
+    background: var(--accent);
+    border: none; border-radius: var(--radius-sm);
+    padding: 8px 18px;
+    font-family: inherit; font-size: 0.82rem; font-weight: 700;
+    color: #fff; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .config-save:hover { opacity: 0.85; }
+  .config-note { font-size: 0.75rem; color: #92400e; opacity: 0.8; width: 100%; }
+
+  /* LOADING */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(240,244,255,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9998; backdrop-filter: blur(4px);
+  }
+  .loading-box {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 32px 40px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-weight: 600; color: var(--text2); font-size: 0.9rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header { padding: 0 16px; }
+    .main { padding: 16px 12px 40px; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1rem; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar .search-wrap { margin-left: 0; }
+    .filter-bar input[type="text"] { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Memuat data dari Google Sheets...</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-icon">🎓</div>
+    <h1>Dashboard Data Kursus Daring<span>Lembaga Kursus dan Pelatihan (LKP)</span></h1>
+  </div>
+  <div class="header-right">
+    <span class="sync-status" id="syncStatus">—</span>
+    <button class="sync-btn" onclick="syncFromSheet()">🔄 Sync Sheet</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- CONFIG GOOGLE SHEET URL -->
+  <div class="config-bar" id="configBar">
+    <label>🔗 URL Google Sheets CSV:</label>
+    <input type="text" id="sheetUrl" placeholder="Masukkan URL CSV Export Google Sheets di sini..."/>
+    <button class="config-save" onclick="saveSheetConfig()">Simpan & Sync</button>
+    <div class="config-note">
+      💡 Cara mendapatkan URL: Buka Google Sheets → File → Bagikan → Publikasikan ke web → Pilih sheet → Format CSV → Salin link.<br>
+      Atau: Ganti /edit?... dengan /export?format=csv&gid=0 pada URL sheet Anda.
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <label>🗺 Provinsi:</label>
+    <select id="filterProvinsi" onchange="applyFilter()">
+      <option value="">Semua Provinsi</option>
+    </select>
+    <label>🏙 Kab/Kota:</label>
+    <select id="filterKabkota" onchange="applyFilter()">
+      <option value="">Semua Kab/Kota</option>
+    </select>
+    <div class="search-wrap">
+      <label>🔍</label>
+      <input type="text" id="searchInput" placeholder="Cari Nama LKP atau NPSN..." oninput="applyFilter()"/>
+    </div>
+    <button class="reset-filter" onclick="resetFilter()">✕ Reset</button>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="section-title">📊 Ringkasan Dashboard</div>
+  <div class="cards-grid">
+    <div class="stat-card c1">
+      <div class="stat-icon">✅</div>
+      <div class="stat-num" id="stat1">0</div>
+      <div class="stat-label">LKP Kursus Daring Sudah Berjalan</div>
+    </div>
+    <div class="stat-card c2">
+      <div class="stat-icon">🏫</div>
+      <div class="stat-num" id="stat2">0</div>
+      <div class="stat-label">Kelas Lengkap Tapi Belum Ada Siswa</div>
+    </div>
+    <div class="stat-card c3">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-num" id="stat3">0</div>
+      <div class="stat-label">Memiliki Kelas Tapi Belum Lengkap</div>
+    </div>
+    <div class="stat-card c4">
+      <div class="stat-icon">🔑</div>
+      <div class="stat-num" id="stat4">0</div>
+      <div class="stat-label">LKP Memiliki Akun Kursus Daring</div>
+    </div>
+    <div class="stat-card c5">
+      <div class="stat-icon">📚</div>
+      <div class="stat-num" id="stat5">0</div>
+      <div class="stat-label">LKP Mengikuti Bimtek Kursus Daring</div>
+    </div>
+    <div class="stat-card c6">
+      <div class="stat-icon">👥</div>
+      <div class="stat-num" id="stat6">0</div>
+      <div class="stat-label">Jumlah Peserta Keseluruhan</div>
+    </div>
+    <div class="stat-card c7">
+      <div class="stat-icon">🎓</div>
+      <div class="stat-num" id="stat7">0</div>
+      <div class="stat-label">Jumlah Lulusan Keseluruhan</div>
+    </div>
+    <div class="stat-card c8">
+      <div class="stat-icon">💼</div>
+      <div class="stat-num" id="stat8">0</div>
+      <div class="stat-label">Jenis Keterampilan Tercatat</div>
+    </div>
+  </div>
+
+  <!-- FORM INPUT -->
+  <div class="section-title">📝 Form Input Data LKP</div>
+  <div class="form-card">
+    <div class="form-card-header">✏️ Input / Edit Data LKP &nbsp;<span style="opacity:.7;font-weight:400;font-size:.82rem">— Ketik NPSN untuk memuat data yang sudah ada</span></div>
+    <div class="form-body">
+
+      <!-- A. IDENTITAS LKP -->
+      <div class="form-section-label">A. Identitas LKP</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>NPSN *</label>
+          <input type="text" id="f_npsn" placeholder="Ketik NPSN..." oninput="lookupNPSN(this.value)" maxlength="20"/>
+        </div>
+        <div class="form-group">
+          <label>Nama LKP *</label>
+          <input type="text" id="f_nama" placeholder="Nama Lembaga"/>
+        </div>
+        <div class="form-group full">
+          <label>Alamat</label>
+          <textarea id="f_alamat" placeholder="Alamat lengkap LKP"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Provinsi *</label>
+          <input type="text" id="f_provinsi" placeholder="Nama Provinsi" list="provinsi-list"/>
+          <datalist id="provinsi-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Kabupaten/Kota *</label>
+          <input type="text" id="f_kabkota" placeholder="Nama Kab/Kota" list="kabkota-list"/>
+          <datalist id="kabkota-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Nama Pimpinan</label>
+          <input type="text" id="f_pimpinan" placeholder="Nama kepala/pimpinan"/>
+        </div>
+        <div class="form-group">
+          <label>Nomor HP</label>
+          <input type="tel" id="f_hp" placeholder="08xxxxxxxxxx"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="f_email" placeholder="email@lkp.id"/>
+        </div>
+      </div>
+
+      <!-- PROGRAM KETERAMPILAN -->
+      <div class="form-section-label">Program Keterampilan (Perdirjen No. 49 Tahun 2025 — klik bidang untuk expand)</div>
+      <div id="programGrid">
+        <!-- diisi JS -->
+      </div>
+
+      <!-- B. STATUS PROGRAM -->
+      <div class="form-section-label">B. Status Program Kursus Daring</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Status Kelas Kursus Daring</label>
+          <div class="status-group">
+            <label class="radio-item"><input type="radio" name="statusKelas" value="berjalan"/> 🟢 Kelas sudah berjalan</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="lengkap_kosong"/> 🟡 Kelas lengkap tapi belum ada siswa</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="belum_lengkap"/> 🔴 Memiliki kelas tapi belum lengkap</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="punya_akun"/> 🔵 Memiliki akun Kursus Daring</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="-"/> ⚪ Belum ada data</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Bimtek Kursus Daring</label>
+          <div class="bimtek-toggle">
+            <button type="button" class="toggle-btn" id="btnBimtekYa" onclick="setBimtek('ya')">✅ Sudah Bimtek</button>
+            <button type="button" class="toggle-btn" id="btnBimtekTidak" onclick="setBimtek('tidak')">❌ Belum Bimtek</button>
+          </div>
+          <input type="hidden" id="f_bimtek" value=""/>
+        </div>
+        <div class="form-group">
+          <label>Jumlah Peserta</label>
+          <input type="number" id="f_peserta" placeholder="0" min="0"/>
+        </div>
+        <div class="form-group">
+          <label>Jumlah Lulusan</label>
+          <input type="number" id="f_lulusan" placeholder="0" min="0"/>
+        </div>
+        <div class="form-group full">
+          <label>Judul Kursus</label>
+          <input type="text" id="f_judul" placeholder="Judul kursus yang diselenggarakan"/>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveData()">💾 Simpan Data</button>
+        <button class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="section-title">📋 Tabel Data LKP</div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h3>📋 Daftar LKP &nbsp;<span class="table-count" id="tableCount">0 data</span></h3>
+      <button class="table-export" onclick="exportCSV()">⬇️ Export CSV</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>NPSN</th>
+            <th>Nama LKP</th>
+            <th>Kab/Kota</th>
+            <th>Provinsi</th>
+            <th>Program Keterampilan</th>
+            <th>Status Kelas</th>
+            <th>Bimtek</th>
+            <th>Peserta</th>
+            <th>Lulusan</th>
+            <th>Judul Kursus</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada data. Silakan tambah data atau sync dari Google Sheets.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ============================================================
+// KONFIGURASI & STATE
+// ============================================================
+const STORAGE_KEY = 'lkp_dashboard_v2';
+const CONFIG_KEY  = 'lkp_sheet_config';
+
+// Program keterampilan berdasarkan Perdirjen No. 49 Tahun 2025
+// Struktur: { bidang, program, jenis[] }
+const RUMPUN_KETERAMPILAN = [
+  {
+    no: 1, bidang: 'Agribisnis dan Agroteknologi',
+    programs: [
+      { program: 'Perikanan', jenis: ['Budidaya Ikan','Pengolahan Hasil Perikanan','Pemasaran Hasil Perikanan'] },
+      { program: 'Pertanian dan Kehutanan', jenis: ['Budidaya Pertanian','Pengolahan Hasil Pertanian','Pengolahan Hasil Hutan','Pemasaran Hasil Pertanian dan Kehutanan'] },
+      { program: 'Pertamanan', jenis: ['Budidaya Tanaman','Lanskap'] },
+      { program: 'Peternakan', jenis: ['Budidaya Ternak','Pengolahan Hasil Peternakan','Pemasaran Hasil Peternakan'] },
+    ]
+  },
+  {
+    no: 2, bidang: 'Bahasa',
+    programs: [
+      { program: 'Indonesia', jenis: ['Bahasa Indonesia','Bahasa Indonesia bagi Penutur Asing (BIPA)'] },
+      { program: 'Asing', jenis: ['Inggris','Mandarin','Korea','Arab','Jepang','Jerman','Belanda','Prancis','Spanyol'] },
+      { program: 'Daerah', jenis: ['Bahasa Daerah di Seluruh Indonesia'] },
+    ]
+  },
+  {
+    no: 3, bidang: 'Industri dan Kerajinan',
+    programs: [
+      { program: 'Busana', jenis: ['Desain Busana','Jahit Busana'] },
+      { program: 'Boga', jenis: ['Jasa Usaha Makanan','Pastri dan Bakeri'] },
+      { program: 'Bordir dan Sulam', jenis: ['Bordir','Sulam'] },
+      { program: 'Tenun', jenis: ['Ikat','Songket','Pintal'] },
+      { program: 'Batik', jenis: ['Tulis','Cap','Printing'] },
+      { program: 'Kerajinan Tangan', jenis: ['Hantaran','Rajut','Jahit Perca'] },
+    ]
+  },
+  {
+    no: 4, bidang: 'Kelestarian Lingkungan',
+    programs: [
+      { program: 'Pengelolaan Limbah', jenis: ['Pengelolaan Limbah','Pemanfaatan Limbah'] },
+      { program: 'Pengelolaan Sampah', jenis: ['Pengelolaan Sampah'] },
+    ]
+  },
+  {
+    no: 5, bidang: 'Pelayanan Sosial dan Masyarakat',
+    programs: [
+      { program: 'Jasa Pelayanan Publik', jenis: ['Pelayanan Kebersihan','Perawatan Hewan Peliharaan','Keamanan Lingkungan','Pelayanan Penatu'] },
+      { program: 'Jasa Pelayanan Rumah Tangga', jenis: ['Asisten Rumah Tangga'] },
+    ]
+  },
+  {
+    no: 6, bidang: 'Kesehatan dan Pekerjaan Sosial',
+    programs: [
+      { program: 'Olahraga', jenis: ['Olahraga Kebugaran','Olahraga Air','Olahraga Berkelompok','Olahraga Bela Diri','Olahraga Elektronik','Olahraga untuk Difabel'] },
+      { program: 'Layanan Kesehatan', jenis: ['Pekarya Kesehatan','Pengasuhan Bayi dan Anak','Petugas Inventori Obat'] },
+      { program: 'Kesehatan Tradisional', jenis: ['Pijat','Herbal Ramuan','Refleksi'] },
+      { program: 'Kesejahteraan Holistik', jenis: ['Sanus Per Aquam (Spa)','Kebugaran Holistik (Wellness)'] },
+      { program: 'Tata Kecantikan', jenis: ['Tata Kecantikan Kulit','Tata Kecantikan Rambut','Tata Rias Wajah'] },
+    ]
+  },
+  {
+    no: 7, bidang: 'Bisnis dan Manajemen',
+    programs: [
+      { program: 'Keuangan dan Aktuaria', jenis: ['Perpajakan','Akuntansi','Asuransi','Perdagangan Saham (Trading)','Perbankan','Keuangan Digital'] },
+      { program: 'Pemasaran', jenis: ['Pemasaran Digital','Pemasaran Ritel'] },
+      { program: 'Manajemen', jenis: ['Logistik','Ekspor Impor','Administrasi Perkantoran','Manajemen Produksi','Manajemen Bengkel Otomotif'] },
+    ]
+  },
+  {
+    no: 8, bidang: 'Komunikasi dan Informasi',
+    programs: [
+      { program: 'Industri Kreatif dan Konten Digital', jenis: ['Fotografi','Videografi','Penyiar','Penyutradaraan','Pembaca Berita','Pengarah Program','Produksi dan Siaran Program Radio','Produksi Siaran Program Televisi','Produksi Film','Membuat Konten Tertulis (Blogger)','Membuat Konten Video (Vlogger)','Membuat Konten Siniar (Podcaster)','Membuat Konten Pemengaruh (Influencer)'] },
+      { program: 'Komunikasi Massa', jenis: ['Pewara (Master of Ceremony)','Hubungan Masyarakat (Humas)','Pembicara Publik (Public Speaking)','Olah Vokal'] },
+      { program: 'Jurnalistik', jenis: ['Jurnalis','Pewarta Berita','Penyunting'] },
+      { program: 'Desain Komunikasi Visual', jenis: ['Desain Grafis','Animasi'] },
+    ]
+  },
+  {
+    no: 9, bidang: 'Pariwisata',
+    programs: [
+      { program: 'Perhotelan', jenis: ['Front Office','Food and Beverage Service','Tata Graha (Housekeeping)','Kuliner (Food Production)'] },
+      { program: 'Travel', jenis: ['Travel Agent','Kepemanduan Wisata'] },
+      { program: 'Peramuan Minuman', jenis: ['Peramuan Kopi','Perasa Kopi (Q Grader)','Peracikan Minuman (Bartender)'] },
+    ]
+  },
+  {
+    no: 10, bidang: 'Seni, Budaya dan Ekonomi Kreatif',
+    programs: [
+      { program: 'Desain dan Teknologi Fesyen', jenis: ['Desain dan Produksi Aksesoris','Desain dan Produksi Tas','Desain dan Produksi Sepatu dan Sandal','Desain dan Produksi Perhiasan'] },
+      { program: 'Tata Rias Pengantin', jenis: ['Tradisional','Modern'] },
+      { program: 'Merangkai Bunga', jenis: ['Merangkai Bunga Segar','Merangkai Bunga Kering/Imitasi'] },
+      { program: 'Seni Pertunjukan', jenis: ['Seni Musik','Seni Tari','Seni Peran','Seni Suara','Seni Sulap','Seni Komedi'] },
+      { program: 'Seni Rupa', jenis: ['Melukis','Memahat'] },
+      { program: 'Seni Kriya', jenis: ['Kulit dan Imitasi','Logam','Kayu dan Rotan','Keramik','Resin'] },
+    ]
+  },
+  {
+    no: 11, bidang: 'Rekayasa dan Teknologi',
+    programs: [
+      { program: 'Teknik Otomasi', jenis: ['Pengendali Logika Terprogram/PLC','Teknik Perbaikan Telepon Seluler','Robotika','Teknik Gambar Mesin'] },
+      { program: 'Teknik Otomotif', jenis: ['Teknik Sepeda Motor','Teknik Kendaraan Ringan','Teknik Alat Berat','Perbaikan Body dan Cat Kendaraan','Teknik Ototronik'] },
+      { program: 'Teknik Konstruksi', jenis: ['Penyusun Dinding dan Struktur','Pemasangan Pipa (Plumbing)','Perancah (Scaffolding)','Pertukangan Kayu Konstruksi','Gambar Bangunan','Topografi'] },
+      { program: 'Teknik Pengelasan', jenis: ['Pengelasan'] },
+      { program: 'Operasi dan Perawatan Mesin Tambang', jenis: ['Operator Alat Berat','Pemetaan dan Survey Tambang'] },
+      { program: 'Teknik Ketenagalistrikan', jenis: ['Teknik Instalasi Listrik dan Teknik Pemanasan','Tata Udara dan Pendinginan'] },
+      { program: 'Teknik Energi Terbarukan', jenis: ['Teknik Energi Surya','Teknik Energi Hidro','Teknik Energi Angin','Teknik Energi BioMassa','Teknik Energi Panas Bumi'] },
+    ]
+  },
+  {
+    no: 12, bidang: 'Teknologi Informasi dan Digital',
+    programs: [
+      { program: 'Perangkat Lunak', jenis: ['Aplikasi Perkantoran dan Multimedia','Pembuatan Perangkat Lunak (Pemrograman/Koding Aplikasi, Pengembangan Aplikasi, Data Science dan AI)'] },
+      { program: 'Perangkat Keras', jenis: ['Teknik Komputer','Jaringan Komputer','IoT'] },
+      { program: 'IT Security', jenis: ['Kriptografi','Keamanan Data (Cyber Security)'] },
+    ]
+  },
+  {
+    no: 13, bidang: 'Transportasi',
+    programs: [
+      { program: 'Transportasi Udara', jenis: ['Awak Kabin Pesawat Udara','Pengoperasian Pesawat Terbang Tanpa Awak (Drone)','Tata Operasi Darat'] },
+      { program: 'Transportasi Darat', jenis: ['Mengemudi Kendaraan Bermotor'] },
+      { program: 'Transportasi Laut', jenis: ['Komunikasi Keselamatan Pelayaran'] },
+    ]
+  },
+  {
+    no: 14, bidang: 'Kependidikan',
+    programs: [
+      { program: 'Pendidik di Satuan Pendidikan', jenis: ['Pendidik PAUD','Tutor'] },
+      { program: 'Pendidikan Keluarga', jenis: ['Parenting (Pengasuhan Anak)','Fasilitator Parenting'] },
+      { program: 'Bimbingan Belajar', jenis: ['Bimbingan Mata Pelajaran'] },
+    ]
+  },
+];
+
+// Flatten jenis keterampilan untuk keperluan filter/stats
+const PROGRAM_KETERAMPILAN = RUMPUN_KETERAMPILAN.flatMap(b =>
+  b.programs.flatMap(p => p.jenis.map(j => `${b.bidang} > ${p.program} > ${j}`))
+);
+
+let masterData = [];   // data master dari Google Sheets
+let localData  = [];   // data status program (LocalStorage)
+let filteredData = []; // data tampil sekarang
+let sheetUrl = '';
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  buildProgramGrid();
+  loadConfig();
+  loadLocalData();
+  // Coba auto-sync jika ada URL tersimpan
+  if (sheetUrl) {
+    syncFromSheet();
+  } else {
+    hideLoading();
+    renderTable();
+    updateStats();
+    buildFilters();
+  }
+  // Isi datalist provinsi dari localData
+  updateDatalistOptions();
+}
+
+function buildProgramGrid() {
+  const grid = document.getElementById('programGrid');
+  grid.innerHTML = RUMPUN_KETERAMPILAN.map(b => `
+    <div class="bidang-group" style="grid-column:1/-1">
+      <div class="bidang-header" onclick="toggleBidang(this)">
+        <span class="bidang-num">${b.no}</span>
+        <span class="bidang-name">${b.bidang}</span>
+        <span class="bidang-arrow">▶</span>
+      </div>
+      <div class="bidang-body" style="display:none">
+        ${b.programs.map(p => {
+          const key = (b.bidang + '||' + p.program).replace(/[^a-zA-Z0-9]/g,'_');
+          return `
+          <div class="program-block">
+            <div class="program-label-row">
+              <input type="checkbox" class="prog-all" id="pa_${key}" onchange="toggleProgramAll(this,'${b.bidang}','${p.program.replace(/'/g,"\\'")}')"/>
+              <label for="pa_${key}" class="program-name">${p.program}</label>
+            </div>
+            <div class="jenis-grid">
+              ${p.jenis.map(j => {
+                const jkey = j.replace(/[^a-zA-Z0-9]/g,'_');
+                return `<label class="check-item">
+                  <input type="checkbox" name="program" value="${j}"
+                    data-bidang="${b.bidang}" data-program="${p.program}"
+                    onchange="syncProgAll('${key}','${b.bidang}','${p.program.replace(/'/g,"\\'")}')"/>
+                  <span>${j}</span>
+                </label>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleBidang(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.bidang-arrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▶' : '▼';
+  header.classList.toggle('open', !isOpen);
+}
+
+function toggleProgramAll(masterCb, bidang, program) {
+  document.querySelectorAll(`input[name="program"][data-bidang="${bidang}"][data-program="${program}"]`)
+    .forEach(cb => cb.checked = masterCb.checked);
+}
+
+function syncProgAll(key, bidang, program) {
+  const cbs = [...document.querySelectorAll(`input[name="program"][data-bidang="${bidang}"][data-program="${program}"]`)];
+  const masterCb = document.getElementById('pa_' + key);
+  if (!masterCb) return;
+  const all = cbs.every(c => c.checked);
+  const some = cbs.some(c => c.checked);
+  masterCb.checked = all;
+  masterCb.indeterminate = some && !all;
+}
+
+// ============================================================
+// CONFIG
+// ============================================================
+function loadConfig() {
+  const saved = localStorage.getItem(CONFIG_KEY);
+  if (saved) {
+    const cfg = JSON.parse(saved);
+    sheetUrl = cfg.sheetUrl || '';
+    document.getElementById('sheetUrl').value = sheetUrl;
+  }
+}
+
+function saveSheetConfig() {
+  sheetUrl = document.getElementById('sheetUrl').value.trim();
+  localStorage.setItem(CONFIG_KEY, JSON.stringify({ sheetUrl }));
+  if (sheetUrl) {
+    syncFromSheet();
+  } else {
+    showToast('URL belum diisi!', 'error');
+  }
+}
+
+// ============================================================
+// SYNC GOOGLE SHEETS
+// ============================================================
+async function syncFromSheet() {
+  if (!sheetUrl) {
+    hideLoading();
+    showToast('Masukkan URL Google Sheets terlebih dahulu di konfigurasi di atas.', 'info');
+    return;
+  }
+  showLoading('Mengambil data dari Google Sheets...');
+  try {
+    // Coba pakai proxy CORS atau langsung
+    const urls = [
+      sheetUrl,
+      sheetUrl.includes('export') ? sheetUrl : sheetUrl.replace(/\/edit.*$/, '/export?format=csv&gid=0')
+    ];
+    let csvText = null;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) { csvText = await res.text(); break; }
+      } catch(e) {}
+    }
+    if (!csvText) throw new Error('Gagal mengambil data. Pastikan sheet sudah dipublikasikan.');
+
+    masterData = parseCSV(csvText);
+    localStorage.setItem(STORAGE_KEY + '_master', JSON.stringify(masterData));
+    mergeData();
+    buildFilters();
+    renderTable();
+    updateStats();
+    updateDatalistOptions();
+    document.getElementById('syncStatus').textContent = '✅ ' + new Date().toLocaleTimeString('id-ID');
+    showToast(`✅ Berhasil sync: ${masterData.length} data LKP`, 'success');
+  } catch(e) {
+    document.getElementById('syncStatus').textContent = '❌ Gagal sync';
+    showToast('❌ ' + e.message, 'error');
+    console.error(e);
+  }
+  hideLoading();
+}
+
+// ============================================================
+// PARSE CSV
+// ============================================================
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = parseCSVRow(lines[0]).map(h => h.trim().toLowerCase());
+  const result = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseCSVRow(lines[i]);
+    if (vals.every(v => !v.trim())) continue;
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (vals[idx] || '').trim(); });
+    // Normalisasi field umum
+    result.push(normalizeSheetRow(obj, headers, vals));
+  }
+  return result;
+}
+
+function parseCSVRow(row) {
+  const result = [];
+  let cur = ''; let inQ = false;
+  for (let i = 0; i < row.length; i++) {
+    const c = row[i];
+    if (c === '"') {
+      if (inQ && row[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+function normalizeSheetRow(obj, headers, vals) {
+  // Coba berbagai nama kolom yang mungkin digunakan di Sheet
+  const get = (...keys) => {
+    for (const k of keys) {
+      if (obj[k] !== undefined && obj[k] !== '') return obj[k];
+      const found = headers.find(h => h.includes(k));
+      if (found && obj[found] !== undefined) return obj[found];
+    }
+    return '';
+  };
+  return {
+    npsn: get('npsn','kode'),
+    nama: get('nama lkp','nama','lembaga'),
+    alamat: get('alamat','address'),
+    provinsi: get('provinsi','province'),
+    kabkota: get('kab','kabupaten','kota','kabkota','kab/kota'),
+    pimpinan: get('pimpinan','ketua','kepala','nama pimpinan'),
+    hp: get('hp','telp','nomor hp','no hp','handphone'),
+    email: get('email','e-mail'),
+    program: get('program keterampilan','program','jenis keterampilan','keterampilan'),
+    // Status program — bisa dari sheet langsung
+    statusKelas: get('status kelas','status','kelas daring'),
+    bimtek: get('bimtek','status bimtek'),
+    peserta: get('peserta','jumlah peserta'),
+    lulusan: get('lulusan','jumlah lulusan'),
+    judul: get('judul','judul kursus','mata kursus'),
+    _raw: obj
+  };
+}
+
+// ============================================================
+// LOCAL DATA
+// ============================================================
+function loadLocalData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  localData = saved ? JSON.parse(saved) : [];
+  const savedMaster = localStorage.getItem(STORAGE_KEY + '_master');
+  masterData = savedMaster ? JSON.parse(savedMaster) : [];
+  mergeData();
+}
+
+function saveLocalData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
+}
+
+// Merge: master dari sheet + update dari lokal
+function mergeData() {
+  // Mulai dari master
+  const map = {};
+  masterData.forEach(r => { if (r.npsn) map[r.npsn] = { ...r }; });
+  // Overlay dengan localData (lebih update)
+  localData.forEach(r => {
+    if (r.npsn) {
+      map[r.npsn] = { ...(map[r.npsn] || {}), ...r };
+    }
+  });
+  filteredData = Object.values(map);
+  // Tambah data lokal yang NPSN-nya tidak ada di master
+  localData.forEach(r => {
+    if (!r.npsn || map[r.npsn]) return;
+    filteredData.push(r);
+  });
+}
+
+// ============================================================
+// LOOKUP NPSN
+// ============================================================
+function lookupNPSN(npsn) {
+  npsn = npsn.trim();
+  if (!npsn) return;
+
+  // Cari di master + lokal
+  const allData = [...filteredData];
+  const found = allData.find(r => r.npsn === npsn);
+  if (found) {
+    fillForm(found);
+    showToast('✅ Data LKP ditemukan dan dimuat.', 'success');
+  }
+}
+
+function fillForm(data) {
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) { el.value = val||''; el.classList.add('auto-filled'); } };
+  setVal('f_npsn', data.npsn);
+  setVal('f_nama', data.nama);
+  setVal('f_alamat', data.alamat);
+  setVal('f_provinsi', data.provinsi);
+  setVal('f_kabkota', data.kabkota);
+  setVal('f_pimpinan', data.pimpinan);
+  setVal('f_hp', data.hp);
+  setVal('f_email', data.email);
+  setVal('f_peserta', data.peserta);
+  setVal('f_lulusan', data.lulusan);
+  setVal('f_judul', data.judul);
+
+  // Status kelas
+  const radios = document.querySelectorAll('input[name="statusKelas"]');
+  radios.forEach(r => r.checked = r.value === (data.statusKelas || '-'));
+
+  // Bimtek
+  setBimtek(data.bimtek || '');
+
+  // Program keterampilan
+  const programs = (data.program || '').split(',').map(p => p.trim().toLowerCase());
+  document.querySelectorAll('input[name="program"]').forEach(cb => {
+    cb.checked = programs.includes(cb.value.toLowerCase());
+  });
+  // Sync semua prog-all checkboxes
+  RUMPUN_KETERAMPILAN.forEach(b => b.programs.forEach(p => {
+    const key = (b.bidang + '||' + p.program).replace(/[^a-zA-Z0-9]/g,'_');
+    syncProgAll(key, b.bidang, p.program);
+  }));
+
+  setTimeout(() => {
+    document.querySelectorAll('.auto-filled').forEach(el => el.classList.remove('auto-filled'));
+  }, 2000);
+}
+
+function setBimtek(val) {
+  document.getElementById('f_bimtek').value = val;
+  document.getElementById('btnBimtekYa').className = 'toggle-btn' + (val === 'ya' ? ' active-yes' : '');
+  document.getElementById('btnBimtekTidak').className = 'toggle-btn' + (val === 'tidak' ? ' active-no' : '');
+}
+
+// ============================================================
+// SAVE DATA
+// ============================================================
+function saveData() {
+  const npsn = document.getElementById('f_npsn').value.trim();
+  if (!npsn) { showToast('NPSN harus diisi!', 'error'); return; }
+  const nama = document.getElementById('f_nama').value.trim();
+  if (!nama) { showToast('Nama LKP harus diisi!', 'error'); return; }
+
+  const statusEl = document.querySelector('input[name="statusKelas"]:checked');
+  const programs = [...document.querySelectorAll('input[name="program"]:checked')].map(c => c.value).join(', ');
+
+  const entry = {
+    npsn,
+    nama,
+    alamat: document.getElementById('f_alamat').value.trim(),
+    provinsi: document.getElementById('f_provinsi').value.trim(),
+    kabkota: document.getElementById('f_kabkota').value.trim(),
+    pimpinan: document.getElementById('f_pimpinan').value.trim(),
+    hp: document.getElementById('f_hp').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    program: programs,
+    statusKelas: statusEl ? statusEl.value : '-',
+    bimtek: document.getElementById('f_bimtek').value,
+    peserta: document.getElementById('f_peserta').value || '0',
+    lulusan: document.getElementById('f_lulusan').value || '0',
+    judul: document.getElementById('f_judul').value.trim(),
+    _savedAt: new Date().toISOString()
+  };
+
+  const idx = localData.findIndex(r => r.npsn === npsn);
+  if (idx >= 0) { localData[idx] = entry; }
+  else { localData.push(entry); }
+
+  saveLocalData();
+  mergeData();
+  applyFilter();
+  updateStats();
+  updateDatalistOptions();
+  resetForm();
+  showToast('✅ Data berhasil disimpan!', 'success');
+}
+
+function resetForm() {
+  ['f_npsn','f_nama','f_alamat','f_provinsi','f_kabkota','f_pimpinan','f_hp','f_email','f_peserta','f_lulusan','f_judul'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('input[name="statusKelas"]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[name="program"]').forEach(cb => cb.checked = false);
+  setBimtek('');
+}
+
+// ============================================================
+// FILTER & RENDER
+// ============================================================
+function applyFilter() {
+  mergeData(); // pastikan merge terbaru
+  const prov = document.getElementById('filterProvinsi').value.toLowerCase();
+  const kab  = document.getElementById('filterKabkota').value.toLowerCase();
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+
+  let data = filteredData;
+  if (prov) data = data.filter(r => (r.provinsi||'').toLowerCase() === prov);
+  if (kab)  data = data.filter(r => (r.kabkota||'').toLowerCase() === kab);
+  if (q)    data = data.filter(r =>
+    (r.nama||'').toLowerCase().includes(q) ||
+    (r.npsn||'').toLowerCase().includes(q)
+  );
+
+  renderTable(data);
+  updateStats(data);
+}
+
+function resetFilter() {
+  document.getElementById('filterProvinsi').value = '';
+  document.getElementById('filterKabkota').value = '';
+  document.getElementById('searchInput').value = '';
+  applyFilter();
+}
+
+function buildFilters() {
+  const provSel = document.getElementById('filterProvinsi');
+  const kabSel  = document.getElementById('filterKabkota');
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(Boolean))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(Boolean))].sort();
+  provSel.innerHTML = '<option value="">Semua Provinsi</option>' + provs.map(p => `<option value="${p.toLowerCase()}">${p}</option>`).join('');
+  kabSel.innerHTML  = '<option value="">Semua Kab/Kota</option>' + kabs.map(k => `<option value="${k.toLowerCase()}">${k}</option>`).join('');
+}
+
+function updateDatalistOptions() {
+  const provDL = document.getElementById('provinsi-list');
+  const kabDL  = document.getElementById('kabkota-list');
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(Boolean))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(Boolean))].sort();
+  provDL.innerHTML = provs.map(p => `<option value="${p}"/>`).join('');
+  kabDL.innerHTML  = kabs.map(k => `<option value="${k}"/>`).join('');
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(data) {
+  if (!data) data = filteredData;
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('tableCount').textContent = data.length + ' data';
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div>Tidak ada data yang ditampilkan.</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((r, i) => `
+    <tr>
+      <td style="color:var(--text3);font-size:.75rem">${i+1}</td>
+      <td class="td-npsn">${r.npsn||'-'}</td>
+      <td style="font-weight:600;min-width:160px">${r.nama||'-'}</td>
+      <td>${r.kabkota||'-'}</td>
+      <td>${r.provinsi||'-'}</td>
+      <td style="max-width:160px;font-size:.75rem">${r.program ? r.program.split(',').map(p=>`<span class="badge badge-purple" style="margin:1px 2px">${p.trim()}</span>`).join('') : '-'}</td>
+      <td>${statusBadge(r.statusKelas)}</td>
+      <td>${bimtekBadge(r.bimtek)}</td>
+      <td style="font-family:'DM Mono',monospace;text-align:center">${r.peserta||'0'}</td>
+      <td style="font-family:'DM Mono',monospace;text-align:center">${r.lulusan||'0'}</td>
+      <td style="max-width:160px;font-size:.78rem">${r.judul||'-'}</td>
+      <td style="white-space:nowrap">
+        <button class="edit-btn" onclick="editRow('${r.npsn}')">✏️ Edit</button>
+        <button class="del-btn" onclick="deleteRow('${r.npsn}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function statusBadge(s) {
+  const map = {
+    'berjalan': ['badge-green', '✅ Berjalan'],
+    'lengkap_kosong': ['badge-yellow', '🟡 Lengkap-Kosong'],
+    'belum_lengkap': ['badge-red', '⚠️ Belum Lengkap'],
+    'punya_akun': ['badge-blue', '🔑 Punya Akun'],
+    '-': ['badge-gray', '— Belum ada'],
+  };
+  const [cls, label] = map[s] || ['badge-gray', s || '—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function bimtekBadge(b) {
+  if (b === 'ya')    return `<span class="badge badge-green">✅ Sudah</span>`;
+  if (b === 'tidak') return `<span class="badge badge-red">❌ Belum</span>`;
+  return `<span class="badge badge-gray">—</span>`;
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats(data) {
+  if (!data) data = filteredData;
+  const count = (fn) => data.filter(fn).length;
+  const sum   = (fn) => data.reduce((acc, r) => acc + (parseInt(fn(r))||0), 0);
+
+  document.getElementById('stat1').textContent = count(r => r.statusKelas === 'berjalan');
+  document.getElementById('stat2').textContent = count(r => r.statusKelas === 'lengkap_kosong');
+  document.getElementById('stat3').textContent = count(r => r.statusKelas === 'belum_lengkap');
+  document.getElementById('stat4').textContent = count(r => r.statusKelas === 'punya_akun' || r.statusKelas === 'berjalan');
+  document.getElementById('stat5').textContent = count(r => r.bimtek === 'ya');
+  document.getElementById('stat6').textContent = sum(r => r.peserta);
+  document.getElementById('stat7').textContent = sum(r => r.lulusan);
+
+  // Jumlah jenis keterampilan unik yang tercatat
+  const allJenis = new Set();
+  data.forEach(r => { (r.program||'').split(',').forEach(p => { p=p.trim(); if(p) allJenis.add(p.toLowerCase()); }); });
+  document.getElementById('stat8').textContent = allJenis.size;
+}
+
+// ============================================================
+// EDIT / DELETE
+// ============================================================
+function editRow(npsn) {
+  const r = filteredData.find(x => x.npsn === npsn);
+  if (!r) return;
+  fillForm(r);
+  document.getElementById('f_npsn').value = npsn;
+  window.scrollTo({ top: document.querySelector('.form-card').offsetTop - 80, behavior: 'smooth' });
+  showToast('✏️ Mode edit: ' + (r.nama||npsn), 'info');
+}
+
+function deleteRow(npsn) {
+  if (!confirm('Hapus data lokal untuk NPSN ' + npsn + '?\n(Data master dari Google Sheets tidak berubah)')) return;
+  localData = localData.filter(r => r.npsn !== npsn);
+  saveLocalData();
+  mergeData();
+  applyFilter();
+  updateStats();
+  showToast('🗑 Data lokal dihapus.', 'info');
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  const data = filteredData;
+  const headers = ['NPSN','Nama LKP','Alamat','Kab/Kota','Provinsi','Pimpinan','HP','Email','Program Keterampilan','Status Kelas','Bimtek','Peserta','Lulusan','Judul Kursus'];
+  const rows = data.map(r => [
+    r.npsn, r.nama, r.alamat, r.kabkota, r.provinsi,
+    r.pimpinan, r.hp, r.email, r.program,
+    r.statusKelas, r.bimtek, r.peserta, r.lulusan, r.judul
+  ].map(v => `"${(v||'').replace(/"/g,'""')}"`));
+
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dashboard_lkp_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// ============================================================
+// LOADING / TOAST
+// ============================================================
+function showLoading(msg) {
+  document.getElementById('loadingText').textContent = msg || 'Memuat...';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+let toastTimer;
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+}
+
+// ============================================================
+// START
+// ============================================================
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
