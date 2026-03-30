@@ -1028,13 +1028,28 @@ async function syncFromSheet() {
     masterData = parseCSV(csvText);
     // Master data TIDAK disimpan ke LocalStorage (terlalu besar, menyebabkan quota error)
     // Master data hanya disimpan di memori (variabel), sync ulang setiap buka halaman
+
+    // DEBUG: tampilkan nama kolom yang terbaca dari sheet (baris pertama)
+    if (masterData.length > 0) {
+      const kolomTerbaca = Object.keys(masterData[0]._raw || {}).filter(k => k !== '_raw');
+      const sample = masterData[0];
+      console.log('=== DEBUG KOLOM SHEET ===');
+      console.log('Kolom yang terbaca:', kolomTerbaca);
+      console.log('Contoh baris 1:', masterData[0]._raw);
+      console.log('Status kelas raw:', sample._rawStatus, '→ mapped:', sample.statusKelas);
+      console.log('Provinsi:', sample.provinsi, '| Kab/Kota:', sample.kabkota);
+      console.log('========================');
+    }
+
     mergeData();
     buildFilters();
     renderTable();
     updateStats();
     updateDatalistOptions();
     document.getElementById('syncStatus').textContent = '✅ ' + new Date().toLocaleTimeString('id-ID');
-    showToast(`✅ Berhasil sync: ${masterData.length} data LKP`, 'success');
+    const provCount = [...new Set(masterData.map(r=>r.provinsi).filter(Boolean))].length;
+    const berjalanCount = masterData.filter(r=>r.statusKelas==='berjalan').length;
+    showToast(`✅ Sync: ${masterData.length} LKP | ${provCount} Provinsi | ${berjalanCount} berjalan`, 'success');
   } catch(e) {
     document.getElementById('syncStatus').textContent = '❌ Gagal sync';
     showToast('❌ ' + e.message, 'error');
@@ -1078,33 +1093,97 @@ function parseCSVRow(row) {
 }
 
 function normalizeSheetRow(obj, headers, vals) {
-  // Coba berbagai nama kolom yang mungkin digunakan di Sheet
+  // Pencarian fleksibel: cek exact match dulu, lalu partial match di headers
   const get = (...keys) => {
     for (const k of keys) {
-      if (obj[k] !== undefined && obj[k] !== '') return obj[k];
-      const found = headers.find(h => h.includes(k));
-      if (found && obj[found] !== undefined) return obj[found];
+      const kl = k.toLowerCase();
+      // exact match
+      if (obj[kl] !== undefined && obj[kl] !== '') return obj[kl];
+      // partial match di headers
+      const found = headers.find(h => h.includes(kl));
+      if (found && obj[found] !== undefined && obj[found] !== '') return obj[found];
     }
     return '';
   };
+
+  // Ambil nilai mentah status kelas dari sheet
+  // Nama kolom di sheet: "Ket. Kelas di LMS Kursus Daring" atau variasinya
+  const rawStatus = get(
+    'ket. kelas di lms kursus daring',
+    'ket kelas di lms kursus daring',
+    'ket. kelas',
+    'keterangan kelas',
+    'status kelas',
+    'ket lms',
+    'lms',
+    'kelas daring',
+    'status'
+  );
+
+  // Ambil nilai mentah bimtek
+  const rawBimtek = get(
+    'bimtek kursus daring',
+    'status bimtek',
+    'bimtek',
+    'ikut bimtek'
+  );
+
   return {
-    npsn: get('npsn','kode'),
-    nama: get('nama lkp','nama','lembaga'),
-    alamat: get('alamat','address'),
+    npsn:     get('npsn','kode lkp','kode'),
+    nama:     get('nama lkp','nama lembaga','nama','lembaga'),
+    alamat:   get('alamat lengkap','alamat','address'),
     provinsi: get('provinsi','province'),
-    kabkota: get('kab','kabupaten','kota','kabkota','kab/kota'),
-    pimpinan: get('pimpinan','ketua','kepala','nama pimpinan'),
-    hp: get('hp','telp','nomor hp','no hp','handphone'),
-    email: get('email','e-mail'),
-    program: get('program keterampilan','program','jenis keterampilan','keterampilan'),
-    // Status program — bisa dari sheet langsung
-    statusKelas: get('status kelas','status','kelas daring'),
-    bimtek: get('bimtek','status bimtek'),
-    peserta: get('peserta','jumlah peserta'),
-    lulusan: get('lulusan','jumlah lulusan'),
-    judul: get('judul','judul kursus','mata kursus'),
+    kabkota:  get('kabupaten/kota','kabupaten kota','kab/kota','kabkota','kabupaten','kota'),
+    pimpinan: get('nama pimpinan','pimpinan','ketua','kepala lkp','kepala'),
+    hp:       get('nomor hp','no hp','no. hp','hp','telp','telepon','handphone'),
+    email:    get('email','e-mail','surel'),
+    program:  get('program keterampilan','jenis keterampilan','program','keterampilan','bidang'),
+    statusKelas: mapStatusKelas(rawStatus),
+    bimtek:   mapBimtek(rawBimtek),
+    peserta:  get('jumlah peserta','peserta','total peserta'),
+    lulusan:  get('jumlah lulusan','lulusan','total lulusan'),
+    judul:    get('judul kursus','judul','mata kursus','nama kursus'),
+    _rawStatus: rawStatus,
     _raw: obj
   };
+}
+
+// Mapping nilai kolom "Ket. Kelas di LMS Kursus Daring" → nilai internal
+function mapStatusKelas(raw) {
+  if (!raw) return '-';
+  const r = raw.toLowerCase().trim();
+
+  // Sudah berjalan / aktif
+  if (r.includes('sudah berjalan') || r.includes('berjalan') ||
+      r.includes('aktif') || r.includes('running') || r === 'ya') return 'berjalan';
+
+  // Kelas lengkap tapi belum ada siswa
+  if (r.includes('lengkap') && (r.includes('belum ada siswa') || r.includes('kosong') || r.includes('tidak ada siswa'))) return 'lengkap_kosong';
+  if (r.includes('siap') && r.includes('siswa')) return 'lengkap_kosong';
+
+  // Memiliki kelas tapi belum lengkap
+  if ((r.includes('belum lengkap') || r.includes('tidak lengkap') || r.includes('proses')) &&
+      !r.includes('akun')) return 'belum_lengkap';
+  if (r.includes('kelas') && r.includes('belum')) return 'belum_lengkap';
+
+  // Hanya punya akun
+  if (r.includes('akun') || r.includes('account') ||
+      r.includes('punya akun') || r.includes('memiliki akun')) return 'punya_akun';
+
+  // Belum / tidak ada
+  if (r === '-' || r === '' || r.includes('belum') || r.includes('tidak') || r.includes('blm')) return '-';
+
+  // Jika ada isian tapi tidak dikenali, anggap berjalan
+  return 'berjalan';
+}
+
+// Mapping nilai kolom bimtek → ya/tidak
+function mapBimtek(raw) {
+  if (!raw) return '';
+  const r = raw.toLowerCase().trim();
+  if (r.includes('sudah') || r.includes('ya') || r === '1' || r.includes('hadir') || r.includes('ikut')) return 'ya';
+  if (r.includes('belum') || r.includes('tidak') || r.includes('blm') || r === '0') return 'tidak';
+  return '';
 }
 
 // ============================================================
