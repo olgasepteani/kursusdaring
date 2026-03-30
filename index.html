@@ -544,6 +544,7 @@
   </div>
   <div class="header-right">
     <span class="sync-status" id="syncStatus">—</span>
+    <button class="sync-btn" onclick="clearCache()" title="Hapus semua data cache lokal" style="background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.5)">🗑 Clear Cache</button>
     <button class="sync-btn" onclick="syncFromSheet()">🔄 Sync Sheet</button>
   </div>
 </header>
@@ -1025,7 +1026,8 @@ async function syncFromSheet() {
     if (!csvText) throw new Error('Gagal mengambil data. Pastikan sheet sudah dipublikasikan.');
 
     masterData = parseCSV(csvText);
-    localStorage.setItem(STORAGE_KEY + '_master', JSON.stringify(masterData));
+    // Master data TIDAK disimpan ke LocalStorage (terlalu besar, menyebabkan quota error)
+    // Master data hanya disimpan di memori (variabel), sync ulang setiap buka halaman
     mergeData();
     buildFilters();
     renderTable();
@@ -1111,13 +1113,46 @@ function normalizeSheetRow(obj, headers, vals) {
 function loadLocalData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   localData = saved ? JSON.parse(saved) : [];
-  const savedMaster = localStorage.getItem(STORAGE_KEY + '_master');
-  masterData = savedMaster ? JSON.parse(savedMaster) : [];
+  // Master data TIDAK dibaca dari localStorage — hanya dari sync Google Sheets
+  // Hapus sisa data master lama jika masih ada (bersihkan kuota)
+  try { localStorage.removeItem(STORAGE_KEY + '_master'); } catch(e) {}
   mergeData();
 }
 
 function saveLocalData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(localData));
+  // Simpan hanya field penting untuk menghemat kuota LocalStorage
+  const slim = localData.map(r => ({
+    npsn: r.npsn,
+    nama: r.nama,
+    alamat: r.alamat,
+    provinsi: r.provinsi,
+    kabkota: r.kabkota,
+    pimpinan: r.pimpinan,
+    hp: r.hp,
+    email: r.email,
+    program: r.program,
+    statusKelas: r.statusKelas,
+    bimtek: r.bimtek,
+    peserta: r.peserta,
+    lulusan: r.lulusan,
+    judul: r.judul,
+    _savedAt: r._savedAt
+  }));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      // Coba hapus data lama yang tidak kritis lalu simpan ulang
+      try {
+        localStorage.removeItem(STORAGE_KEY + '_master');
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+        showToast('⚠️ Data lama dibersihkan untuk mengosongkan ruang penyimpanan.', 'info');
+      } catch(e2) {
+        showToast('❌ Penyimpanan lokal penuh! Hapus data lama atau gunakan browser lain.', 'error');
+        console.error('LocalStorage penuh:', e2);
+      }
+    }
+  }
 }
 
 // Merge: master dari sheet + update dari lokal
@@ -1414,8 +1449,26 @@ function exportCSV() {
 }
 
 // ============================================================
-// LOADING / TOAST
+// CLEAR CACHE
 // ============================================================
+function clearCache() {
+  if (!confirm('Hapus semua data cache lokal?\n\n• Data master dari Google Sheets akan di-sync ulang\n• Data status program yang tersimpan lokal akan TERHAPUS\n• Data di Google Sheets tidak terpengaruh')) return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY + '_master');
+    localStorage.removeItem(CONFIG_KEY);
+  } catch(e) {}
+  localData = [];
+  masterData = [];
+  filteredData = [];
+  document.getElementById('sheetUrl').value = '';
+  sheetUrl = '';
+  renderTable();
+  updateStats();
+  showToast('🗑 Cache dibersihkan. Masukkan URL Sheet lalu klik Sync.', 'info');
+}
+
+
 function showLoading(msg) {
   document.getElementById('loadingText').textContent = msg || 'Memuat...';
   document.getElementById('loadingOverlay').style.display = 'flex';
