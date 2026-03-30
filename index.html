@@ -1716,48 +1716,73 @@ function showDebug() {
     dp.style.display = 'block';
     return;
   }
-  const raw = masterData[0]._raw || {};
-  const kolom = Object.keys(raw);
+  const raw0 = masterData[0]._raw || {};
+  const kolom = Object.keys(raw0);
+
+  // Cari sample baris yang punya data status kelas
+  const sampleDenganStatus = masterData.find(r => r._rawStatus && r._rawStatus !== '') || masterData[0];
+  const sampleDenganBimtek = masterData.find(r => r.bimtek === 'ya' || r.bimtek === 'tidak') || masterData[0];
+
+  // Hitung distribusi status
+  const distStatus = {};
+  masterData.forEach(r => {
+    const k = r._rawStatus || '(kosong)';
+    distStatus[k] = (distStatus[k]||0) + 1;
+  });
+  const distBimtek = {};
+  masterData.forEach(r => {
+    const k = r.bimtek || '(kosong)';
+    distBimtek[k] = (distBimtek[k]||0) + 1;
+  });
+
   dc.innerHTML = `
-    <div style="color:#7dd3fc;margin-bottom:8px">
-      📋 <b>${kolom.length} kolom terbaca</b> — Screenshot dan kirim ke Claude untuk perbaikan mapping
-    </div>
-    <div style="background:#0f172a;padding:10px 12px;border-radius:6px;margin-bottom:10px">
-      ${kolom.map((k, i) => {
-        const val = raw[k] || '';
-        const isProvinsi = k.includes('provinsi') || k.includes('province');
-        const isKab = k.includes('kab') || k.includes('kota');
-        const isStatus = k.includes('ket') || k.includes('lms') || k.includes('kelas') || k.includes('status');
-        const isBimtek = k.includes('bimtek');
-        const color = isProvinsi ? '#4ade80' : isKab ? '#60a5fa' : isStatus ? '#fb923c' : isBimtek ? '#c084fc' : '#e2e8f0';
-        return `<div style="padding:2px 0;border-bottom:1px solid #1e293b">
-          <span style="color:#64748b;min-width:28px;display:inline-block">[${i}]</span>
-          <span style="color:${color};min-width:220px;display:inline-block">${k}</span>
-          <span style="color:#94a3b8;font-size:0.68rem">${val.substring(0,50)}${val.length>50?'...':''}</span>
-        </div>`;
+    <div style="color:#7dd3fc;margin-bottom:8px">📋 <b>${kolom.length} kolom — indeks kolom sheet:</b></div>
+    <div style="background:#0f172a;padding:10px 12px;border-radius:6px;margin-bottom:12px">
+      ${kolom.map((k,i) => {
+        const isP = i===0, isK=i===1, isN=i===2, isNm=i===3, isSt=i===4, isBm=i===5, isPg=i===6;
+        const col = isP?'#4ade80':isK?'#60a5fa':isN?'#e2e8f0':isNm?'#e2e8f0':isSt?'#fb923c':isBm?'#c084fc':isPg?'#fbbf24':'#94a3b8';
+        const label = isP?'PROVINSI':isK?'KAB/KOTA':isN?'NPSN':isNm?'NAMA':isSt?'STATUS KELAS':isBm?'BIMTEK':isPg?'PROGRAM':'';
+        return `<span style="margin-right:12px"><span style="color:#64748b">[${i}]</span> <span style="color:${col}">${k}</span>${label?` <span style="background:#1e3a5f;color:${col};font-size:.65rem;padding:1px 5px;border-radius:4px">${label}</span>`:''}`;
       }).join('')}
     </div>
-    <div style="color:#7dd3fc;margin-bottom:4px">🗺 <b>Nilai yang dipetakan dari baris 1:</b></div>
-    <div style="background:#0f172a;padding:10px 12px;border-radius:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px">
-      ${[
-        ['NPSN', masterData[0].npsn],
-        ['Nama LKP', masterData[0].nama],
-        ['Provinsi', masterData[0].provinsi],
-        ['Kab/Kota', masterData[0].kabkota],
-        ['Status Kelas (raw)', masterData[0]._rawStatus],
-        ['Status Kelas (mapped)', masterData[0].statusKelas],
-        ['Bimtek', masterData[0].bimtek],
-        ['Peserta', masterData[0].peserta],
-      ].map(([label, val]) => `
-        <div>
-          <span style="color:#64748b;font-size:0.68rem">${label}</span><br>
-          <span style="color:${val ? '#fbbf24' : '#f87171'}">${val || '❌ tidak terbaca'}</span>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="color:#fb923c;margin-bottom:6px">📊 <b>Distribusi nilai kolom [4] Status Kelas:</b></div>
+        <div style="background:#0f172a;padding:8px 10px;border-radius:6px">
+          ${Object.entries(distStatus).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+            <div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #1e293b">
+              <span style="color:#fcd34d">"${k}"</span>
+              <span style="color:#4ade80">${v} LKP → <b>${mapStatusKelas(k)}</b></span>
+            </div>`).join('')}
         </div>
-      `).join('')}
+      </div>
+      <div>
+        <div style="color:#c084fc;margin-bottom:6px">📊 <b>Distribusi nilai kolom [5] Bimtek:</b></div>
+        <div style="background:#0f172a;padding:8px 10px;border-radius:6px">
+          ${Object.entries(distBimtek).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+            <div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #1e293b">
+              <span style="color:#fcd34d">"${k}"</span>
+              <span style="color:#4ade80">${v} LKP</span>
+            </div>`).join('')}
+        </div>
+      </div>
     </div>
-    <div style="margin-top:10px;padding:8px 10px;background:#1e3a5f;border-radius:6px;color:#93c5fd;font-size:0.7rem;line-height:1.6">
-      🟢 = Provinsi &nbsp; 🔵 = Kab/Kota &nbsp; 🟠 = Status Kelas &nbsp; 🟣 = Bimtek<br>
-      Kirim screenshot ini ke Claude agar mapping kolom bisa diperbaiki dengan tepat.
+
+    <div style="color:#7dd3fc;margin-bottom:4px">🔎 <b>Contoh baris dengan data status (${sampleDenganStatus.nama||'?'}):</b></div>
+    <div style="background:#0f172a;padding:8px 10px;border-radius:6px;margin-bottom:8px">
+      <div>NPSN: <span style="color:#fbbf24">${sampleDenganStatus.npsn||'❌'}</span> &nbsp;|&nbsp; Nama: <span style="color:#fbbf24">${sampleDenganStatus.nama||'❌'}</span></div>
+      <div>Provinsi: <span style="color:#4ade80">${sampleDenganStatus.provinsi||'❌'}</span> &nbsp;|&nbsp; Kab/Kota: <span style="color:#60a5fa">${sampleDenganStatus.kabkota||'❌'}</span></div>
+      <div>Status raw: <span style="color:#fb923c">"${sampleDenganStatus._rawStatus||'kosong'}"</span> → mapped: <span style="color:#4ade80;font-weight:bold">${sampleDenganStatus.statusKelas}</span></div>
+      <div>Bimtek: <span style="color:#c084fc">"${sampleDenganBimtek._raw?.[kolom[5]]||'kosong'}"</span> → mapped: <span style="color:#4ade80">${sampleDenganBimtek.bimtek||'kosong'}</span></div>
+    </div>
+    <div style="color:#475569;font-size:.7rem">
+      Total: ${masterData.length} LKP |
+      Berjalan: ${masterData.filter(r=>r.statusKelas==='berjalan').length} |
+      Materi Lengkap: ${masterData.filter(r=>r.statusKelas==='lengkap_kosong').length} |
+      Belum Lengkap: ${masterData.filter(r=>r.statusKelas==='belum_lengkap').length} |
+      Punya Akun: ${masterData.filter(r=>r.statusKelas==='punya_akun').length} |
+      Kosong: ${masterData.filter(r=>r.statusKelas==='-').length}
     </div>
   `;
   dp.style.display = 'block';
