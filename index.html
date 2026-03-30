@@ -544,6 +544,7 @@
   </div>
   <div class="header-right">
     <span class="sync-status" id="syncStatus">—</span>
+    <button class="sync-btn" onclick="showDebug()" title="Lihat kolom yang terbaca dari Sheet" style="background:rgba(251,191,36,0.2);border-color:rgba(251,191,36,0.5)">🔍 Debug</button>
     <button class="sync-btn" onclick="clearCache()" title="Hapus semua data cache lokal" style="background:rgba(239,68,68,0.25);border-color:rgba(239,68,68,0.5)">🗑 Clear Cache</button>
     <button class="sync-btn" onclick="syncFromSheet()">🔄 Sync Sheet</button>
   </div>
@@ -562,7 +563,14 @@
     </div>
   </div>
 
-  <!-- FILTER BAR -->
+  <!-- DEBUG PANEL - tampil saat sync, hilang setelah diklik -->
+  <div id="debugPanel" style="display:none;background:#1e293b;color:#e2e8f0;border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;font-family:'DM Mono',monospace;font-size:0.75rem;line-height:1.7;position:relative">
+    <div style="font-size:0.8rem;font-weight:700;color:#94a3b8;margin-bottom:8px">🔍 DEBUG — Kolom yang terbaca dari Google Sheet (klik × untuk tutup)</div>
+    <div id="debugContent"></div>
+    <button onclick="document.getElementById('debugPanel').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer">×</button>
+  </div>
+
+
   <div class="filter-bar">
     <label>🗺 Provinsi:</label>
     <select id="filterProvinsi" onchange="applyFilter()">
@@ -1031,14 +1039,32 @@ async function syncFromSheet() {
 
     // DEBUG: tampilkan nama kolom yang terbaca dari sheet (baris pertama)
     if (masterData.length > 0) {
-      const kolomTerbaca = Object.keys(masterData[0]._raw || {}).filter(k => k !== '_raw');
+      const kolomTerbaca = Object.keys(masterData[0]._raw || {});
       const sample = masterData[0];
       console.log('=== DEBUG KOLOM SHEET ===');
-      console.log('Kolom yang terbaca:', kolomTerbaca);
-      console.log('Contoh baris 1:', masterData[0]._raw);
-      console.log('Status kelas raw:', sample._rawStatus, '→ mapped:', sample.statusKelas);
-      console.log('Provinsi:', sample.provinsi, '| Kab/Kota:', sample.kabkota);
-      console.log('========================');
+      console.log('Kolom:', kolomTerbaca);
+      console.log('Row 1:', masterData[0]._raw);
+
+      // Tampilkan di panel debug visual
+      const dp = document.getElementById('debugPanel');
+      const dc = document.getElementById('debugContent');
+      dc.innerHTML = `
+        <div style="color:#7dd3fc;margin-bottom:6px">📋 <b>Header kolom (${kolomTerbaca.length} kolom):</b></div>
+        <div style="background:#0f172a;padding:8px 10px;border-radius:6px;margin-bottom:10px;word-break:break-all">
+          ${kolomTerbaca.map((k,i) => `<span style="color:#fbbf24">[${i}]</span> <span style="color:#86efac">${k}</span>&nbsp;&nbsp;`).join('')}
+        </div>
+        <div style="color:#7dd3fc;margin-bottom:4px">🔎 <b>Contoh data baris pertama (${sample.nama || '?'}):</b></div>
+        <div style="background:#0f172a;padding:8px 10px;border-radius:6px">
+          <div>NPSN: <span style="color:#fbbf24">${sample.npsn||'❌ tidak terbaca'}</span></div>
+          <div>Nama: <span style="color:#fbbf24">${sample.nama||'❌ tidak terbaca'}</span></div>
+          <div>Provinsi: <span style="color:#fbbf24">${sample.provinsi||'❌ tidak terbaca'}</span></div>
+          <div>Kab/Kota: <span style="color:#fbbf24">${sample.kabkota||'❌ tidak terbaca'}</span></div>
+          <div>Status Kelas (raw): <span style="color:#fb923c">"${sample._rawStatus||'kosong'}"</span> → mapped: <span style="color:#4ade80">${sample.statusKelas}</span></div>
+          <div>Bimtek: <span style="color:#fbbf24">${sample.bimtek||'kosong'}</span></div>
+        </div>
+        <div style="margin-top:8px;color:#94a3b8;font-size:0.7rem">Kirim screenshot panel ini ke Claude untuk perbaikan mapping kolom yang tepat.</div>
+      `;
+      dp.style.display = 'block';
     }
 
     mergeData();
@@ -1411,11 +1437,43 @@ function resetFilter() {
   applyFilter();
 }
 
+// Daftar kata kunci yang VALID untuk provinsi/kabkota Indonesia
+const KATA_PROVINSI = [
+  'aceh','sumatera','riau','jambi','bengkulu','lampung','bangka','kepulauan',
+  'jakarta','jawa','yogyakarta','banten','bali','nusa','kalimantan','sulawesi',
+  'gorontalo','maluku','papua','dki','diy','ntb','ntt','kalbar','kalteng',
+  'kalsel','kaltim','kaltara','sulut','sulteng','sulsel','sultra','sumut',
+  'sumbar','sumsel','jabar','jateng','jatim','prov.','provinsi'
+];
+const KATA_KABKOTA = [
+  'kabupaten','kota','kab.','kab ','kot.','administratif'
+];
+
+function isValidProvinsi(v) {
+  if (!v || v.length < 3 || v.length > 60) return false;
+  if (/^\d/.test(v)) return false;
+  if ((v.match(/,/g)||[]).length >= 1) return false;  // ada koma = bukan provinsi
+  if (/\d{2,}/.test(v)) return false;  // ada 2+ digit angka berturutan
+  const vl = v.toLowerCase();
+  // Harus mengandung salah satu kata kunci provinsi Indonesia
+  return KATA_PROVINSI.some(k => vl.includes(k));
+}
+
+function isValidKabkota(v) {
+  if (!v || v.length < 3 || v.length > 80) return false;
+  if (/^\d/.test(v)) return false;
+  if ((v.match(/,/g)||[]).length >= 1) return false;  // ada koma = bukan kab/kota
+  if (/\d{2,}/.test(v)) return false;  // ada 2+ digit angka
+  const vl = v.toLowerCase();
+  // Harus mengandung kata kunci kabupaten/kota
+  return KATA_KABKOTA.some(k => vl.includes(k));
+}
+
 function buildFilters() {
   const provSel = document.getElementById('filterProvinsi');
   const kabSel  = document.getElementById('filterKabkota');
-  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(Boolean))].sort();
-  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(Boolean))].sort();
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(v => isValidProvinsi(v)))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(v => isValidKabkota(v)))].sort();
   provSel.innerHTML = '<option value="">Semua Provinsi</option>' + provs.map(p => `<option value="${p.toLowerCase()}">${p}</option>`).join('');
   kabSel.innerHTML  = '<option value="">Semua Kab/Kota</option>' + kabs.map(k => `<option value="${k.toLowerCase()}">${k}</option>`).join('');
 }
@@ -1423,8 +1481,8 @@ function buildFilters() {
 function updateDatalistOptions() {
   const provDL = document.getElementById('provinsi-list');
   const kabDL  = document.getElementById('kabkota-list');
-  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(Boolean))].sort();
-  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(Boolean))].sort();
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(v => isValidProvinsi(v)))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(v => isValidKabkota(v)))].sort();
   provDL.innerHTML = provs.map(p => `<option value="${p}"/>`).join('');
   kabDL.innerHTML  = kabs.map(k => `<option value="${k}"/>`).join('');
 }
@@ -1547,8 +1605,65 @@ function exportCSV() {
 }
 
 // ============================================================
-// CLEAR CACHE
+// DEBUG
 // ============================================================
+function showDebug() {
+  const dp = document.getElementById('debugPanel');
+  const dc = document.getElementById('debugContent');
+  if (!masterData.length) {
+    dc.innerHTML = '<div style="color:#f87171">❌ Belum ada data. Lakukan Sync Sheet terlebih dahulu.</div>';
+    dp.style.display = 'block';
+    return;
+  }
+  const raw = masterData[0]._raw || {};
+  const kolom = Object.keys(raw);
+  dc.innerHTML = `
+    <div style="color:#7dd3fc;margin-bottom:8px">
+      📋 <b>${kolom.length} kolom terbaca</b> — Screenshot dan kirim ke Claude untuk perbaikan mapping
+    </div>
+    <div style="background:#0f172a;padding:10px 12px;border-radius:6px;margin-bottom:10px">
+      ${kolom.map((k, i) => {
+        const val = raw[k] || '';
+        const isProvinsi = k.includes('provinsi') || k.includes('province');
+        const isKab = k.includes('kab') || k.includes('kota');
+        const isStatus = k.includes('ket') || k.includes('lms') || k.includes('kelas') || k.includes('status');
+        const isBimtek = k.includes('bimtek');
+        const color = isProvinsi ? '#4ade80' : isKab ? '#60a5fa' : isStatus ? '#fb923c' : isBimtek ? '#c084fc' : '#e2e8f0';
+        return `<div style="padding:2px 0;border-bottom:1px solid #1e293b">
+          <span style="color:#64748b;min-width:28px;display:inline-block">[${i}]</span>
+          <span style="color:${color};min-width:220px;display:inline-block">${k}</span>
+          <span style="color:#94a3b8;font-size:0.68rem">${val.substring(0,50)}${val.length>50?'...':''}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="color:#7dd3fc;margin-bottom:4px">🗺 <b>Nilai yang dipetakan dari baris 1:</b></div>
+    <div style="background:#0f172a;padding:10px 12px;border-radius:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px">
+      ${[
+        ['NPSN', masterData[0].npsn],
+        ['Nama LKP', masterData[0].nama],
+        ['Provinsi', masterData[0].provinsi],
+        ['Kab/Kota', masterData[0].kabkota],
+        ['Status Kelas (raw)', masterData[0]._rawStatus],
+        ['Status Kelas (mapped)', masterData[0].statusKelas],
+        ['Bimtek', masterData[0].bimtek],
+        ['Peserta', masterData[0].peserta],
+      ].map(([label, val]) => `
+        <div>
+          <span style="color:#64748b;font-size:0.68rem">${label}</span><br>
+          <span style="color:${val ? '#fbbf24' : '#f87171'}">${val || '❌ tidak terbaca'}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:10px;padding:8px 10px;background:#1e3a5f;border-radius:6px;color:#93c5fd;font-size:0.7rem;line-height:1.6">
+      🟢 = Provinsi &nbsp; 🔵 = Kab/Kota &nbsp; 🟠 = Status Kelas &nbsp; 🟣 = Bimtek<br>
+      Kirim screenshot ini ke Claude agar mapping kolom bisa diperbaiki dengan tepat.
+    </div>
+  `;
+  dp.style.display = 'block';
+  window.scrollTo({top: dp.offsetTop - 80, behavior: 'smooth'});
+}
+
+
 function clearCache() {
   if (!confirm('Hapus semua data cache lokal?\n\n• Data master dari Google Sheets akan di-sync ulang\n• Data status program yang tersimpan lokal akan TERHAPUS\n• Data di Google Sheets tidak terpengaruh')) return;
   try {
