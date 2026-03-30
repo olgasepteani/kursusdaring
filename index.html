@@ -681,11 +681,11 @@
         <div class="form-group full">
           <label>Status Kelas Kursus Daring</label>
           <div class="status-group">
-            <label class="radio-item"><input type="radio" name="statusKelas" value="berjalan"/> 🟢 Kelas sudah berjalan</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="lengkap_kosong"/> 🟡 Kelas lengkap tapi belum ada siswa</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="belum_lengkap"/> 🔴 Memiliki kelas tapi belum lengkap</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="punya_akun"/> 🔵 Memiliki akun Kursus Daring</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="-"/> ⚪ Belum ada data</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="berjalan"/> ✅ Sudah berjalan</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="lengkap_kosong"/> 📤 Upload kelas materi lengkap</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="belum_lengkap"/> ⚠️ Upload kelas tapi belum lengkap</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="punya_akun"/> 🔑 Memiliki akun Kursus Daring</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="-"/> ⚪ Belum memiliki akun</label>
           </div>
         </div>
         <div class="form-group">
@@ -1148,33 +1148,51 @@ function normalizeSheetRow(obj, headers, vals) {
   };
 }
 
-// Mapping nilai kolom "Ket. Kelas di LMS Kursus Daring" → nilai internal
+// Mapping nilai dropdown "Ket. Kelas di LMS Kursus Daring" → nilai internal
+// Nilai dropdown di sheet:
+//   "sudah berjalan"              → berjalan
+//   "upload kelas materi lengkap" → lengkap_kosong
+//   "upload kelas tapi belum lengkap" → belum_lengkap
+//   "memiliki akun"               → punya_akun
+//   "belum memiliki akun"         → -
 function mapStatusKelas(raw) {
   if (!raw) return '-';
   const r = raw.toLowerCase().trim();
 
-  // Sudah berjalan / aktif
-  if (r.includes('sudah berjalan') || r.includes('berjalan') ||
-      r.includes('aktif') || r.includes('running') || r === 'ya') return 'berjalan';
+  // 2. Sudah berjalan
+  if (r === 'sudah berjalan' || r.includes('sudah berjalan')) return 'berjalan';
 
-  // Kelas lengkap tapi belum ada siswa
-  if (r.includes('lengkap') && (r.includes('belum ada siswa') || r.includes('kosong') || r.includes('tidak ada siswa'))) return 'lengkap_kosong';
-  if (r.includes('siap') && r.includes('siswa')) return 'lengkap_kosong';
+  // 3. Upload kelas materi lengkap → Kelas Lengkap Tapi Belum Ada Siswa
+  if (r === 'upload kelas materi lengkap' ||
+      (r.includes('materi') && r.includes('lengkap')) ||
+      (r.includes('upload') && r.includes('lengkap') && !r.includes('belum lengkap')))
+    return 'lengkap_kosong';
 
-  // Memiliki kelas tapi belum lengkap
-  if ((r.includes('belum lengkap') || r.includes('tidak lengkap') || r.includes('proses')) &&
-      !r.includes('akun')) return 'belum_lengkap';
-  if (r.includes('kelas') && r.includes('belum')) return 'belum_lengkap';
+  // 4. Upload kelas tapi belum lengkap → Memiliki Kelas Tapi Belum Lengkap
+  if (r === 'upload kelas tapi belum lengkap' ||
+      (r.includes('upload') && r.includes('belum lengkap')) ||
+      (r.includes('kelas') && r.includes('belum lengkap')))
+    return 'belum_lengkap';
 
-  // Hanya punya akun
-  if (r.includes('akun') || r.includes('account') ||
-      r.includes('punya akun') || r.includes('memiliki akun')) return 'punya_akun';
+  // 1. Memiliki akun (tapi belum upload kelas)
+  if (r === 'memiliki akun' ||
+      (r.includes('memiliki akun') && !r.includes('belum')))
+    return 'punya_akun';
 
-  // Belum / tidak ada
-  if (r === '-' || r === '' || r.includes('belum') || r.includes('tidak') || r.includes('blm')) return '-';
+  // Belum memiliki akun
+  if (r === 'belum memiliki akun' ||
+      r.includes('belum memiliki') ||
+      r.includes('belum punya akun') ||
+      r === '-' || r === '')
+    return '-';
 
-  // Jika ada isian tapi tidak dikenali, anggap berjalan
-  return 'berjalan';
+  // Fallback partial matching
+  if (r.includes('berjalan') || r.includes('aktif')) return 'berjalan';
+  if (r.includes('lengkap') && !r.includes('belum')) return 'lengkap_kosong';
+  if (r.includes('belum lengkap') || r.includes('tidak lengkap')) return 'belum_lengkap';
+  if (r.includes('akun') && !r.includes('belum')) return 'punya_akun';
+
+  return '-';
 }
 
 // Mapping nilai kolom bimtek → ya/tidak
@@ -1447,11 +1465,11 @@ function renderTable(data) {
 
 function statusBadge(s) {
   const map = {
-    'berjalan': ['badge-green', '✅ Berjalan'],
-    'lengkap_kosong': ['badge-yellow', '🟡 Lengkap-Kosong'],
-    'belum_lengkap': ['badge-red', '⚠️ Belum Lengkap'],
-    'punya_akun': ['badge-blue', '🔑 Punya Akun'],
-    '-': ['badge-gray', '— Belum ada'],
+    'berjalan':      ['badge-green',  '✅ Sudah Berjalan'],
+    'lengkap_kosong':['badge-yellow', '📤 Materi Lengkap'],
+    'belum_lengkap': ['badge-red',    '⚠️ Belum Lengkap'],
+    'punya_akun':    ['badge-blue',   '🔑 Memiliki Akun'],
+    '-':             ['badge-gray',   '— Belum Akun'],
   };
   const [cls, label] = map[s] || ['badge-gray', s || '—'];
   return `<span class="badge ${cls}">${label}</span>`;
@@ -1474,7 +1492,8 @@ function updateStats(data) {
   document.getElementById('stat1').textContent = count(r => r.statusKelas === 'berjalan');
   document.getElementById('stat2').textContent = count(r => r.statusKelas === 'lengkap_kosong');
   document.getElementById('stat3').textContent = count(r => r.statusKelas === 'belum_lengkap');
-  document.getElementById('stat4').textContent = count(r => r.statusKelas === 'punya_akun' || r.statusKelas === 'berjalan');
+  // Memiliki akun = semua yang statusnya bukan '-' (punya akun, berjalan, lengkap, belum lengkap — semua sudah punya akun)
+  document.getElementById('stat4').textContent = count(r => r.statusKelas && r.statusKelas !== '-' && r.statusKelas !== '');
   document.getElementById('stat5').textContent = count(r => r.bimtek === 'ya');
   document.getElementById('stat6').textContent = sum(r => r.peserta);
   document.getElementById('stat7').textContent = sum(r => r.lulusan);
