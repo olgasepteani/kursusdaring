@@ -510,7 +510,49 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-weight: 600; color: var(--text2); font-size: 0.9rem; }
 
-  /* RESPONSIVE */
+  /* TABLE FILTER BAR */
+  .table-filter-bar {
+    padding: 12px 16px;
+    display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    background: #f8faff;
+  }
+  .tfl-group { display: flex; flex-direction: column; gap: 4px; }
+  .tfl-group label { font-size: 0.72rem; font-weight: 700; color: var(--text2); }
+  .tfl-group select, .tfl-group input {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 6px 10px; font-family: inherit; font-size: 0.82rem;
+    color: var(--text); background: #fff; outline: none;
+    transition: border 0.2s; min-width: 150px;
+  }
+  .tfl-group select:focus, .tfl-group input:focus { border-color: var(--primary); }
+  .tfl-search input { min-width: 220px; }
+  .table-filter-bar .reset-filter { margin-bottom: 0; align-self: flex-end; }
+
+  /* PAGINATION */
+  .pagination-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 8px;
+  }
+  .pagination-info { font-size: 0.78rem; color: var(--text2); }
+  .pagination-pages { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+  .page-btn {
+    min-width: 32px; height: 32px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: #fff; color: var(--text2);
+    font-family: inherit; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; padding: 0 8px;
+  }
+  .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .page-size-select {
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 4px 8px; font-family: inherit; font-size: 0.78rem;
+    color: var(--text2); background: #fff; outline: none; cursor: pointer;
+  }
   @media (max-width: 768px) {
     .header { padding: 0 16px; }
     .main { padding: 16px 12px 40px; }
@@ -571,22 +613,6 @@
   </div>
 
 
-  <div class="filter-bar">
-    <label>🗺 Provinsi:</label>
-    <select id="filterProvinsi" onchange="applyFilter()">
-      <option value="">Semua Provinsi</option>
-    </select>
-    <label>🏙 Kab/Kota:</label>
-    <select id="filterKabkota" onchange="applyFilter()">
-      <option value="">Semua Kab/Kota</option>
-    </select>
-    <div class="search-wrap">
-      <label>🔍</label>
-      <input type="text" id="searchInput" placeholder="Cari Nama LKP atau NPSN..." oninput="applyFilter()"/>
-    </div>
-    <button class="reset-filter" onclick="resetFilter()">✕ Reset</button>
-  </div>
-
   <!-- STAT CARDS -->
   <div class="section-title">📊 Ringkasan Dashboard</div>
   <div class="cards-grid">
@@ -632,8 +658,62 @@
     </div>
   </div>
 
-  <!-- FORM INPUT -->
-  <div class="section-title">📝 Form Input Data LKP</div>
+  <!-- TABLE (dipindah ke atas form) -->
+  <div class="section-title">📋 Tabel Data LKP</div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h3>📋 Daftar LKP &nbsp;<span class="table-count" id="tableCount">0 data</span></h3>
+      <button class="table-export" onclick="exportCSV()">⬇️ Export CSV</button>
+    </div>
+    <!-- Filter bar tabel -->
+    <div class="table-filter-bar">
+      <div class="tfl-group">
+        <label>🗺 Provinsi</label>
+        <select id="filterProvinsi" onchange="applyFilter()">
+          <option value="">Semua Provinsi</option>
+        </select>
+      </div>
+      <div class="tfl-group">
+        <label>🏙 Kab/Kota</label>
+        <select id="filterKabkota" onchange="applyFilter()">
+          <option value="">Semua Kab/Kota</option>
+        </select>
+      </div>
+      <div class="tfl-group tfl-search">
+        <label>🔍 Cari</label>
+        <input type="text" id="searchInput" placeholder="Nama LKP atau NPSN..." oninput="applyFilter()"/>
+      </div>
+      <button class="reset-filter" onclick="resetFilter()">✕ Reset</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>NPSN</th>
+            <th>Nama LKP</th>
+            <th>Kab/Kota</th>
+            <th>Provinsi</th>
+            <th>Program Keterampilan</th>
+            <th>Status Kelas</th>
+            <th>Bimtek</th>
+            <th>Peserta</th>
+            <th>Lulusan</th>
+            <th>Judul Kursus</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada data. Silakan tambah data atau sync dari Google Sheets.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div class="pagination-bar" id="paginationBar"></div>
+  </div>
+
+  <!-- FORM INPUT (dipindah ke bawah tabel) -->
+  <div class="section-title" style="margin-top:28px">📝 Form Input / Edit Data LKP</div>
   <div class="form-card">
     <div class="form-card-header">✏️ Input / Edit Data LKP &nbsp;<span style="opacity:.7;font-weight:400;font-size:.82rem">— Ketik NPSN untuk memuat data yang sudah ada</span></div>
     <div class="form-body">
@@ -679,9 +759,7 @@
 
       <!-- PROGRAM KETERAMPILAN -->
       <div class="form-section-label">Program Keterampilan (Perdirjen No. 49 Tahun 2025 — klik bidang untuk expand)</div>
-      <div id="programGrid">
-        <!-- diisi JS -->
-      </div>
+      <div id="programGrid"></div>
 
       <!-- B. STATUS PROGRAM -->
       <div class="form-section-label">B. Status Program Kursus Daring</div>
@@ -723,38 +801,6 @@
         <button class="btn-save" onclick="saveData()">💾 Simpan Data</button>
         <button class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
       </div>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div class="section-title">📋 Tabel Data LKP</div>
-  <div class="table-card">
-    <div class="table-card-header">
-      <h3>📋 Daftar LKP &nbsp;<span class="table-count" id="tableCount">0 data</span></h3>
-      <button class="table-export" onclick="exportCSV()">⬇️ Export CSV</button>
-    </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>NPSN</th>
-            <th>Nama LKP</th>
-            <th>Kab/Kota</th>
-            <th>Provinsi</th>
-            <th>Program Keterampilan</th>
-            <th>Status Kelas</th>
-            <th>Bimtek</th>
-            <th>Peserta</th>
-            <th>Lulusan</th>
-            <th>Judul Kursus</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada data. Silakan tambah data atau sync dari Google Sheets.</div></td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
@@ -905,6 +951,9 @@ let masterData = [];   // data master dari Google Sheets
 let localData  = [];   // data status program (LocalStorage)
 let filteredData = []; // data tampil sekarang
 let sheetUrl = '';
+let currentPage = 1;
+let pageSize = 20;
+let currentFilteredData = []; // data setelah filter (untuk pagination)
 
 // ============================================================
 // INIT
@@ -1119,56 +1168,42 @@ function parseCSVRow(row) {
 }
 
 function normalizeSheetRow(obj, headers, vals) {
-  // Pencarian fleksibel: cek exact match dulu, lalu partial match di headers
+  // Akses langsung berdasarkan indeks kolom yang sudah diketahui dari debug:
+  // [0] provinsi  [1] kab/kota  [2] npsn  [3] nama lkp
+  // [4] ket. kelas di lms kursus daring  [5] bimtek 2025
+  // [6] program keterampilan  [7] peserta  [8] lulusan
+  // [9] nama kelas/course  [10] hide/tidak
+
+  // Gunakan akses by-index sebagai prioritas utama, fallback ke nama kolom
+  const byIdx = (idx) => (vals[idx] || '').trim();
   const get = (...keys) => {
     for (const k of keys) {
       const kl = k.toLowerCase();
-      // exact match
       if (obj[kl] !== undefined && obj[kl] !== '') return obj[kl];
-      // partial match di headers
       const found = headers.find(h => h.includes(kl));
       if (found && obj[found] !== undefined && obj[found] !== '') return obj[found];
     }
     return '';
   };
 
-  // Ambil nilai mentah status kelas dari sheet
-  // Nama kolom di sheet: "Ket. Kelas di LMS Kursus Daring" atau variasinya
-  const rawStatus = get(
-    'ket. kelas di lms kursus daring',
-    'ket kelas di lms kursus daring',
-    'ket. kelas',
-    'keterangan kelas',
-    'status kelas',
-    'ket lms',
-    'lms',
-    'kelas daring',
-    'status'
-  );
-
-  // Ambil nilai mentah bimtek
-  const rawBimtek = get(
-    'bimtek kursus daring',
-    'status bimtek',
-    'bimtek',
-    'ikut bimtek'
-  );
+  const rawStatus = byIdx(4) || get('ket. kelas','ket kelas','lms kursus daring','kelas daring','status kelas');
+  const rawBimtek = byIdx(5) || get('bimtek 2025','bimtek kursus daring','bimtek','status bimtek');
 
   return {
-    npsn:     get('npsn','kode lkp','kode'),
-    nama:     get('nama lkp','nama lembaga','nama','lembaga'),
-    alamat:   get('alamat lengkap','alamat','address'),
-    provinsi: get('provinsi','province'),
-    kabkota:  get('kabupaten/kota','kabupaten kota','kab/kota','kabkota','kabupaten','kota'),
-    pimpinan: get('nama pimpinan','pimpinan','ketua','kepala lkp','kepala'),
-    hp:       get('nomor hp','no hp','no. hp','hp','telp','telepon','handphone'),
+    npsn:     byIdx(2) || get('npsn','kode'),
+    nama:     byIdx(3) || get('nama lkp','nama lembaga','nama'),
+    alamat:   get('alamat','address'),
+    provinsi: byIdx(0) || get('provinsi','province'),
+    kabkota:  byIdx(1) || get('kab/ kota','kab/kota','kabupaten/kota','kabkota','kabupaten','kota'),
+    pimpinan: get('nama pimpinan','pimpinan','ketua','kepala'),
+    hp:       get('nomor hp','no hp','no. hp','hp','telp','handphone'),
     email:    get('email','e-mail','surel'),
-    program:  get('program keterampilan','jenis keterampilan','program','keterampilan','bidang'),
+    program:  byIdx(6) || get('program keterampilan','keterampilan','program'),
     statusKelas: mapStatusKelas(rawStatus),
     bimtek:   mapBimtek(rawBimtek),
-    peserta:  get('jumlah peserta','peserta','total peserta'),
-    lulusan:  get('jumlah lulusan','lulusan','total lulusan'),
-    judul:    get('judul kursus','judul','mata kursus','nama kursus'),
+    peserta:  byIdx(7) || get('peserta','jumlah peserta'),
+    lulusan:  byIdx(8) || get('lulusan','jumlah lulusan'),
+    judul:    byIdx(9) || get('nama kelas','nama kelas/ course','judul kursus','judul','mata kursus'),
     _rawStatus: rawStatus,
     _raw: obj
   };
@@ -1280,21 +1315,17 @@ function saveLocalData() {
 
 // Merge: master dari sheet + update dari lokal
 function mergeData() {
-  // Mulai dari master
   const map = {};
   masterData.forEach(r => { if (r.npsn) map[r.npsn] = { ...r }; });
-  // Overlay dengan localData (lebih update)
   localData.forEach(r => {
-    if (r.npsn) {
-      map[r.npsn] = { ...(map[r.npsn] || {}), ...r };
-    }
+    if (r.npsn) map[r.npsn] = { ...(map[r.npsn] || {}), ...r };
   });
   filteredData = Object.values(map);
-  // Tambah data lokal yang NPSN-nya tidak ada di master
   localData.forEach(r => {
     if (!r.npsn || map[r.npsn]) return;
     filteredData.push(r);
   });
+  currentFilteredData = filteredData; // sync default
 }
 
 // ============================================================
@@ -1413,10 +1444,10 @@ function resetForm() {
 // FILTER & RENDER
 // ============================================================
 function applyFilter() {
-  mergeData(); // pastikan merge terbaru
+  mergeData();
   const prov = document.getElementById('filterProvinsi').value.toLowerCase();
   const kab  = document.getElementById('filterKabkota').value.toLowerCase();
-  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const q    = document.getElementById('searchInput').value.toLowerCase().trim();
 
   let data = filteredData;
   if (prov) data = data.filter(r => (r.provinsi||'').toLowerCase() === prov);
@@ -1426,7 +1457,9 @@ function applyFilter() {
     (r.npsn||'').toLowerCase().includes(q)
   );
 
-  renderTable(data);
+  currentFilteredData = data;
+  currentPage = 1; // reset ke halaman 1 setiap filter berubah
+  renderTable();
   updateStats(data);
 }
 
@@ -1472,8 +1505,10 @@ function isValidKabkota(v) {
 function buildFilters() {
   const provSel = document.getElementById('filterProvinsi');
   const kabSel  = document.getElementById('filterKabkota');
-  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(v => isValidProvinsi(v)))].sort();
-  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(v => isValidKabkota(v)))].sort();
+  // Filter hanya nilai yang terlihat seperti nama wilayah (bukan angka atau kalimat panjang)
+  const cleanVal = (v) => v && v.length >= 3 && v.length <= 80 && !/^\d/.test(v) && (v.match(/,/g)||[]).length === 0;
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(cleanVal))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(cleanVal))].sort();
   provSel.innerHTML = '<option value="">Semua Provinsi</option>' + provs.map(p => `<option value="${p.toLowerCase()}">${p}</option>`).join('');
   kabSel.innerHTML  = '<option value="">Semua Kab/Kota</option>' + kabs.map(k => `<option value="${k.toLowerCase()}">${k}</option>`).join('');
 }
@@ -1481,33 +1516,46 @@ function buildFilters() {
 function updateDatalistOptions() {
   const provDL = document.getElementById('provinsi-list');
   const kabDL  = document.getElementById('kabkota-list');
-  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(v => isValidProvinsi(v)))].sort();
-  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(v => isValidKabkota(v)))].sort();
+  const cleanVal = (v) => v && v.length >= 3 && v.length <= 80 && !/^\d/.test(v) && (v.match(/,/g)||[]).length === 0;
+  const provs = [...new Set(filteredData.map(r => r.provinsi).filter(cleanVal))].sort();
+  const kabs  = [...new Set(filteredData.map(r => r.kabkota).filter(cleanVal))].sort();
   provDL.innerHTML = provs.map(p => `<option value="${p}"/>`).join('');
   kabDL.innerHTML  = kabs.map(k => `<option value="${k}"/>`).join('');
 }
 
 // ============================================================
-// RENDER TABLE
+// RENDER TABLE + PAGINATION
 // ============================================================
 function renderTable(data) {
-  if (!data) data = filteredData;
-  const tbody = document.getElementById('tableBody');
-  document.getElementById('tableCount').textContent = data.length + ' data';
+  // Gunakan currentFilteredData jika tidak ada parameter
+  if (data !== undefined) currentFilteredData = data;
+  const allData = currentFilteredData;
 
-  if (!data.length) {
+  const total = allData.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * pageSize;
+  const end   = Math.min(start + pageSize, total);
+  const pageData = allData.slice(start, end);
+
+  document.getElementById('tableCount').textContent = `${total} data`;
+  const tbody = document.getElementById('tableBody');
+
+  if (!total) {
     tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">📭</div>Tidak ada data yang ditampilkan.</div></td></tr>`;
+    document.getElementById('paginationBar').innerHTML = '';
     return;
   }
 
-  tbody.innerHTML = data.map((r, i) => `
+  tbody.innerHTML = pageData.map((r, i) => `
     <tr>
-      <td style="color:var(--text3);font-size:.75rem">${i+1}</td>
+      <td style="color:var(--text3);font-size:.75rem">${start + i + 1}</td>
       <td class="td-npsn">${r.npsn||'-'}</td>
       <td style="font-weight:600;min-width:160px">${r.nama||'-'}</td>
       <td>${r.kabkota||'-'}</td>
       <td>${r.provinsi||'-'}</td>
-      <td style="max-width:160px;font-size:.75rem">${r.program ? r.program.split(',').map(p=>`<span class="badge badge-purple" style="margin:1px 2px">${p.trim()}</span>`).join('') : '-'}</td>
+      <td style="max-width:160px;font-size:.75rem">${r.program ? r.program.split(',').slice(0,2).map(p=>`<span class="badge badge-purple" style="margin:1px 2px">${p.trim()}</span>`).join('') + (r.program.split(',').length > 2 ? `<span class="badge badge-gray">+${r.program.split(',').length-2}</span>` : '') : '-'}</td>
       <td>${statusBadge(r.statusKelas)}</td>
       <td>${bimtekBadge(r.bimtek)}</td>
       <td style="font-family:'DM Mono',monospace;text-align:center">${r.peserta||'0'}</td>
@@ -1519,6 +1567,59 @@ function renderTable(data) {
       </td>
     </tr>
   `).join('');
+
+  renderPagination(total, totalPages);
+}
+
+function renderPagination(total, totalPages) {
+  const bar = document.getElementById('paginationBar');
+  const start = (currentPage - 1) * pageSize + 1;
+  const end   = Math.min(currentPage * pageSize, total);
+
+  // Buat daftar nomor halaman yang ditampilkan (maksimal 7 tombol)
+  let pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages = [1];
+    if (currentPage > 3) pages.push('...');
+    for (let i = Math.max(2, currentPage-1); i <= Math.min(totalPages-1, currentPage+1); i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+  }
+
+  bar.innerHTML = `
+    <div class="pagination-info">
+      Menampilkan <b>${start}–${end}</b> dari <b>${total}</b> data &nbsp;|&nbsp;
+      <select class="page-size-select" onchange="changePageSize(this.value)">
+        ${[10,20,50,100].map(n => `<option value="${n}" ${n===pageSize?'selected':''}>${n}/halaman</option>`).join('')}
+      </select>
+    </div>
+    <div class="pagination-pages">
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ Prev</button>
+      ${pages.map(p => p === '...'
+        ? `<span style="padding:0 4px;color:var(--text3)">…</span>`
+        : `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`
+      ).join('')}
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next ›</button>
+    </div>
+  `;
+}
+
+function goPage(p) {
+  const total = currentFilteredData.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+  // Scroll ke atas tabel
+  document.querySelector('.table-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function changePageSize(val) {
+  pageSize = parseInt(val);
+  currentPage = 1;
+  renderTable();
 }
 
 function statusBadge(s) {
