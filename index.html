@@ -553,17 +553,114 @@
     padding: 4px 8px; font-family: inherit; font-size: 0.78rem;
     color: var(--text2); background: #fff; outline: none; cursor: pointer;
   }
+  /* MODAL DETAIL KURSUS */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 9000;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%; max-width: 640px;
+    max-height: 88vh; display: flex; flex-direction: column;
+    border: 1px solid var(--border);
+    animation: modalIn .18s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  .modal-header {
+    background: linear-gradient(90deg,#1239a5,#2563eb);
+    color:#fff; padding:16px 20px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .modal-header h3 { font-size:.95rem; font-weight:700; line-height:1.3; }
+  .modal-header .modal-meta { font-size:.75rem; opacity:.75; margin-top:2px; }
+  .modal-close {
+    background:rgba(255,255,255,.18); border:none; border-radius:8px;
+    color:#fff; width:30px; height:30px; font-size:1.1rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background .2s;
+  }
+  .modal-close:hover { background:rgba(255,255,255,.32); }
+  .modal-body { padding:20px; overflow-y:auto; flex:1; }
+  .modal-footer {
+    padding:14px 20px; border-top:1px solid var(--border);
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    background:#f8faff; border-radius:0 0 var(--radius) var(--radius);
+  }
+  /* Daftar kursus di modal */
+  .kursus-list { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .kursus-item {
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:var(--radius-sm); padding:9px 12px;
+    font-size:.84rem;
+  }
+  .kursus-item .kursus-num {
+    background:var(--primary-light); color:var(--primary);
+    border-radius:6px; width:24px; height:24px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.72rem; font-weight:700; flex-shrink:0;
+  }
+  .kursus-item .kursus-nama { flex:1; font-weight:500; }
+  .kursus-item .kursus-del {
+    background:none; border:none; color:var(--text3);
+    cursor:pointer; font-size:1rem; padding:2px 4px;
+    border-radius:4px; transition:color .15s, background .15s;
+  }
+  .kursus-item .kursus-del:hover { color:var(--accent3); background:#fee2e2; }
+  .kursus-empty { text-align:center; padding:24px; color:var(--text3); font-size:.85rem; }
+  /* Input tambah kursus */
+  .kursus-add-row {
+    display:flex; gap:8px; align-items:center;
+    background:#f0f4ff; border:1.5px dashed var(--primary);
+    border-radius:var(--radius-sm); padding:8px 12px;
+    margin-top:4px;
+  }
+  .kursus-add-row input {
+    flex:1; border:none; background:transparent;
+    font-family:inherit; font-size:.85rem; color:var(--text);
+    outline:none;
+  }
+  .kursus-add-row input::placeholder { color:var(--text3); }
+  .btn-add-kursus {
+    background:var(--primary); color:#fff; border:none;
+    border-radius:6px; padding:6px 14px;
+    font-family:inherit; font-size:.8rem; font-weight:700;
+    cursor:pointer; white-space:nowrap; transition:opacity .2s;
+  }
+  .btn-add-kursus:hover { opacity:.88; }
+  .kursus-from-sheet {
+    font-size:.72rem; color:var(--text3);
+    margin-bottom:8px; font-style:italic;
+  }
+  .lkp-name-btn {
+    background: none; border: none; padding: 0;
+    font-family: inherit; font-size: inherit;
+    font-weight: 600; color: var(--primary);
+    cursor: pointer; text-align: left;
+    text-decoration: underline; text-decoration-style: dotted;
+    text-underline-offset: 3px; min-width: 140px;
+    transition: color .15s;
+  }
+  .lkp-name-btn:hover { color: var(--primary-dark); text-decoration-style: solid; }
+  .kursus-chip {
+    display:inline-block; background:#f0f4ff; color:var(--primary);
+    border:1px solid #c7d7f9; border-radius:4px;
+    padding:1px 6px; font-size:.7rem; margin:1px 2px; white-space:nowrap;
+  }
+
   @media (max-width: 768px) {
     .header { padding: 0 16px; }
     .main { padding: 16px 12px 40px; }
     .cards-grid { grid-template-columns: repeat(2, 1fr); }
     .form-grid { grid-template-columns: 1fr; }
     .header h1 { font-size: 1rem; }
-    .filter-bar { flex-direction: column; align-items: stretch; }
-    .filter-bar .search-wrap { margin-left: 0; }
-    .filter-bar input[type="text"] { min-width: unset; }
+    .modal-box { max-height:95vh; }
   }
-</style>
 </head>
 <body>
 
@@ -766,12 +863,19 @@
       <div class="form-grid">
         <div class="form-group full">
           <label>Status Kelas Kursus Daring</label>
-          <div class="status-group">
-            <label class="radio-item"><input type="radio" name="statusKelas" value="berjalan"/> ✅ Sudah berjalan</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="lengkap_kosong"/> 📤 Upload kelas materi lengkap</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="belum_lengkap"/> ⚠️ Upload kelas tapi belum lengkap</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="punya_akun"/> 🔑 Memiliki akun Kursus Daring</label>
-            <label class="radio-item"><input type="radio" name="statusKelas" value="-"/> ⚪ Belum memiliki akun</label>
+          <div class="status-group" id="statusKelasGroup">
+            <label class="radio-item"><input type="radio" name="statusKelas" value="berjalan" onchange="onStatusChange()"/> ✅ Sudah berjalan</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="lengkap_kosong" onchange="onStatusChange()"/> 📤 Upload kelas materi lengkap</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="belum_lengkap" onchange="onStatusChange()"/> ⚠️ Upload kelas tapi belum lengkap</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="punya_akun" onchange="onStatusChange()"/> 🔑 Memiliki akun Kursus Daring</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="nonaktif" onchange="onStatusChange()"/> 🚫 Dinonaktifkan</label>
+            <label class="radio-item"><input type="radio" name="statusKelas" value="-" onchange="onStatusChange()"/> ⚪ Belum memiliki akun</label>
+          </div>
+          <!-- Field terakhir update — muncul saat status = nonaktif -->
+          <div id="nonaktifDetail" style="display:none;margin-top:10px;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:var(--radius-sm);padding:12px 14px;">
+            <label style="font-size:.8rem;font-weight:700;color:#6b7280;display:block;margin-bottom:6px">📅 Terakhir Update Kelas</label>
+            <input type="date" id="f_terakhirUpdate" style="border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-family:inherit;font-size:.86rem;color:var(--text);background:#fff;outline:none;width:220px"/>
+            <div style="font-size:.72rem;color:var(--text3);margin-top:5px">Tanggal terakhir kali kelas diperbarui sebelum dinonaktifkan</div>
           </div>
         </div>
         <div class="form-group">
@@ -805,6 +909,37 @@
   </div>
 
 </div><!-- /main -->
+
+<!-- MODAL DETAIL KURSUS LKP -->
+<div class="modal-overlay" id="kursusModal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalLkpNama">—</h3>
+        <div class="modal-meta" id="modalLkpMeta">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:.8rem;font-weight:700;color:var(--primary);margin-bottom:10px">
+        📚 Daftar Judul Kursus / Nama Kelas
+      </div>
+      <div class="kursus-from-sheet" id="modalSheetInfo"></div>
+      <div class="kursus-list" id="kursusList"></div>
+      <!-- Input tambah kursus baru -->
+      <div class="kursus-add-row">
+        <span style="font-size:.82rem;font-weight:700;color:var(--primary);white-space:nowrap">+ Tambah:</span>
+        <input type="text" id="kursusInput" placeholder="Ketik judul kursus baru..." onkeydown="if(event.key==='Enter')tambahKursus()"/>
+        <button class="btn-add-kursus" onclick="tambahKursus()">Tambah</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" style="font-size:.82rem;padding:8px 18px" onclick="simpanKursusModal()">💾 Simpan Perubahan</button>
+      <button class="btn-reset" style="font-size:.82rem;padding:8px 14px" onclick="closeModal()">Tutup</button>
+      <span style="font-size:.72rem;color:var(--text3);margin-left:auto">Data disimpan ke lokal. Sync Sheet untuk data terbaru dari Google Sheets.</span>
+    </div>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -1290,10 +1425,12 @@ function saveLocalData() {
     email: r.email,
     program: r.program,
     statusKelas: r.statusKelas,
+    terakhirUpdate: r.terakhirUpdate || '',
     bimtek: r.bimtek,
     peserta: r.peserta,
     lulusan: r.lulusan,
     judul: r.judul,
+    kursusLokal: r.kursusLokal || [],
     _savedAt: r._savedAt
   }));
   try {
@@ -1357,10 +1494,12 @@ function fillForm(data) {
   setVal('f_peserta', data.peserta);
   setVal('f_lulusan', data.lulusan);
   setVal('f_judul', data.judul);
+  setVal('f_terakhirUpdate', data.terakhirUpdate || '');
 
   // Status kelas
   const radios = document.querySelectorAll('input[name="statusKelas"]');
   radios.forEach(r => r.checked = r.value === (data.statusKelas || '-'));
+  onStatusChange(); // tampilkan/sembunyikan field nonaktif
 
   // Bimtek
   setBimtek(data.bimtek || '');
@@ -1399,6 +1538,9 @@ function saveData() {
   const statusEl = document.querySelector('input[name="statusKelas"]:checked');
   const programs = [...document.querySelectorAll('input[name="program"]:checked')].map(c => c.value).join(', ');
 
+  // Pertahankan kursusLokal yang sudah ada
+  const existing = localData.find(r => r.npsn === npsn);
+
   const entry = {
     npsn,
     nama,
@@ -1410,10 +1552,12 @@ function saveData() {
     email: document.getElementById('f_email').value.trim(),
     program: programs,
     statusKelas: statusEl ? statusEl.value : '-',
+    terakhirUpdate: document.getElementById('f_terakhirUpdate').value || '',
     bimtek: document.getElementById('f_bimtek').value,
     peserta: document.getElementById('f_peserta').value || '0',
     lulusan: document.getElementById('f_lulusan').value || '0',
     judul: document.getElementById('f_judul').value.trim(),
+    kursusLokal: existing?.kursusLokal || [],
     _savedAt: new Date().toISOString()
   };
 
@@ -1431,13 +1575,14 @@ function saveData() {
 }
 
 function resetForm() {
-  ['f_npsn','f_nama','f_alamat','f_provinsi','f_kabkota','f_pimpinan','f_hp','f_email','f_peserta','f_lulusan','f_judul'].forEach(id => {
+  ['f_npsn','f_nama','f_alamat','f_provinsi','f_kabkota','f_pimpinan','f_hp','f_email','f_peserta','f_lulusan','f_judul','f_terakhirUpdate'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   document.querySelectorAll('input[name="statusKelas"]').forEach(r => r.checked = false);
   document.querySelectorAll('input[name="program"]').forEach(cb => cb.checked = false);
   setBimtek('');
+  document.getElementById('nonaktifDetail').style.display = 'none';
 }
 
 // ============================================================
@@ -1552,7 +1697,11 @@ function renderTable(data) {
     <tr>
       <td style="color:var(--text3);font-size:.75rem">${start + i + 1}</td>
       <td class="td-npsn">${r.npsn||'-'}</td>
-      <td style="font-weight:600;min-width:160px">${r.nama||'-'}</td>
+      <td>
+        <button class="lkp-name-btn" onclick="openKursusModal('${(r.npsn||'').replace(/'/g,"\\'")}')">
+          ${r.nama||'-'}
+        </button>
+      </td>
       <td>${r.kabkota||'-'}</td>
       <td>${r.provinsi||'-'}</td>
       <td style="max-width:160px;font-size:.75rem">${r.program ? r.program.split(',').slice(0,2).map(p=>`<span class="badge badge-purple" style="margin:1px 2px">${p.trim()}</span>`).join('') + (r.program.split(',').length > 2 ? `<span class="badge badge-gray">+${r.program.split(',').length-2}</span>` : '') : '-'}</td>
@@ -1560,7 +1709,7 @@ function renderTable(data) {
       <td>${bimtekBadge(r.bimtek)}</td>
       <td style="font-family:'DM Mono',monospace;text-align:center">${r.peserta||'0'}</td>
       <td style="font-family:'DM Mono',monospace;text-align:center">${r.lulusan||'0'}</td>
-      <td style="max-width:160px;font-size:.78rem">${r.judul||'-'}</td>
+      <td style="max-width:180px;font-size:.78rem">${renderKursusList(r)}</td>
       <td style="white-space:nowrap">
         <button class="edit-btn" onclick="editRow('${r.npsn}')">✏️ Edit</button>
         <button class="del-btn" onclick="deleteRow('${r.npsn}')">🗑</button>
@@ -1624,11 +1773,12 @@ function changePageSize(val) {
 
 function statusBadge(s) {
   const map = {
-    'berjalan':      ['badge-green',  '✅ Sudah Berjalan'],
-    'lengkap_kosong':['badge-yellow', '📤 Materi Lengkap'],
-    'belum_lengkap': ['badge-red',    '⚠️ Belum Lengkap'],
-    'punya_akun':    ['badge-blue',   '🔑 Memiliki Akun'],
-    '-':             ['badge-gray',   '— Belum Akun'],
+    'berjalan':       ['badge-green',   '✅ Sudah Berjalan'],
+    'lengkap_kosong': ['badge-yellow',  '📤 Materi Lengkap'],
+    'belum_lengkap':  ['badge-red',     '⚠️ Belum Lengkap'],
+    'punya_akun':     ['badge-blue',    '🔑 Memiliki Akun'],
+    'nonaktif':       ['badge-nonaktif','🚫 Dinonaktifkan'],
+    '-':              ['badge-gray',    '— Belum Akun'],
   };
   const [cls, label] = map[s] || ['badge-gray', s || '—'];
   return `<span class="badge ${cls}">${label}</span>`;
@@ -1706,8 +1856,148 @@ function exportCSV() {
 }
 
 // ============================================================
-// DEBUG
+// RENDER KURSUS LIST DI TABEL (preview chips)
 // ============================================================
+function renderKursusList(r) {
+  // Gabungkan kursus dari sheet (judul/nama kelas) + kursus lokal tambahan
+  const fromSheet = (r.judul||'').split('|').map(s=>s.trim()).filter(Boolean);
+  const fromLocal = (r.kursusLokal||[]);
+  const all = [...new Set([...fromSheet, ...fromLocal])];
+  if (!all.length) return '<span style="color:var(--text3);font-size:.75rem">—</span>';
+  const shown = all.slice(0,2);
+  const more  = all.length - shown.length;
+  return shown.map(k=>`<span class="kursus-chip">${k}</span>`).join('') +
+    (more > 0 ? `<span class="kursus-chip" style="background:#e0e7ff">+${more} lagi</span>` : '');
+}
+
+// ============================================================
+// MODAL DETAIL KURSUS
+// ============================================================
+let modalNpsn = ''; // NPSN LKP yang sedang dibuka modal
+
+function openKursusModal(npsn) {
+  const r = filteredData.find(x => x.npsn === npsn);
+  if (!r) return;
+  modalNpsn = npsn;
+
+  document.getElementById('modalLkpNama').textContent = r.nama || npsn;
+  document.getElementById('modalLkpMeta').textContent =
+    `NPSN: ${r.npsn} | ${r.kabkota||''} ${r.provinsi ? '· '+r.provinsi : ''}`;
+
+  // Kursus dari sheet (kolom Nama Kelas/Course)
+  const fromSheet = (r.judul||'').split('|').map(s=>s.trim()).filter(Boolean);
+  // Kursus lokal tambahan
+  const fromLocal = (r.kursusLokal||[]);
+
+  const sheetInfo = document.getElementById('modalSheetInfo');
+  sheetInfo.textContent = fromSheet.length
+    ? `${fromSheet.length} judul dari Google Sheets · ${fromLocal.length} ditambahkan manual`
+    : 'Belum ada data dari Google Sheets';
+
+  renderKursusModal(fromSheet, fromLocal);
+  document.getElementById('kursusModal').classList.add('open');
+  document.getElementById('kursusInput').focus();
+}
+
+function renderKursusModal(fromSheet, fromLocal) {
+  const list = document.getElementById('kursusList');
+  const all = [
+    ...fromSheet.map(k => ({ nama: k, sumber: 'sheet' })),
+    ...fromLocal.map(k => ({ nama: k, sumber: 'lokal' }))
+  ];
+  if (!all.length) {
+    list.innerHTML = `<div class="kursus-empty">📭 Belum ada judul kursus.<br>Tambahkan di bawah.</div>`;
+    return;
+  }
+  list.innerHTML = all.map((k, i) => `
+    <div class="kursus-item">
+      <div class="kursus-num">${i+1}</div>
+      <div class="kursus-nama">${k.nama}
+        ${k.sumber==='sheet' ? '<span style="font-size:.65rem;color:var(--text3);margin-left:4px">(dari Sheet)</span>' : '<span style="font-size:.65rem;color:var(--primary);margin-left:4px">(manual)</span>'}
+      </div>
+      ${k.sumber==='lokal' ? `<button class="kursus-del" onclick="hapusKursusLokal('${k.nama.replace(/'/g,"\\'")}')">🗑</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function tambahKursus() {
+  const input = document.getElementById('kursusInput');
+  const nama = input.value.trim();
+  if (!nama) return;
+
+  const r = filteredData.find(x => x.npsn === modalNpsn);
+  if (!r) return;
+  const fromSheet = (r.judul||'').split('|').map(s=>s.trim()).filter(Boolean);
+  const fromLocal = r.kursusLokal || [];
+
+  // Cek duplikat
+  if ([...fromSheet, ...fromLocal].some(k => k.toLowerCase() === nama.toLowerCase())) {
+    showToast('Judul kursus sudah ada!', 'error');
+    return;
+  }
+  fromLocal.push(nama);
+
+  // Update di localData
+  const idx = localData.findIndex(x => x.npsn === modalNpsn);
+  if (idx >= 0) {
+    localData[idx].kursusLokal = fromLocal;
+  } else {
+    localData.push({ npsn: modalNpsn, kursusLokal: fromLocal });
+  }
+  saveLocalData();
+  mergeData();
+
+  // Re-render modal
+  renderKursusModal(fromSheet, fromLocal);
+  input.value = '';
+  input.focus();
+  showToast('✅ Judul kursus ditambahkan', 'success');
+}
+
+function hapusKursusLokal(nama) {
+  const r = filteredData.find(x => x.npsn === modalNpsn);
+  if (!r) return;
+  const fromSheet = (r.judul||'').split('|').map(s=>s.trim()).filter(Boolean);
+  const fromLocal = (r.kursusLokal||[]).filter(k => k !== nama);
+
+  const idx = localData.findIndex(x => x.npsn === modalNpsn);
+  if (idx >= 0) localData[idx].kursusLokal = fromLocal;
+  saveLocalData();
+  mergeData();
+  renderKursusModal(fromSheet, fromLocal);
+  showToast('🗑 Judul kursus dihapus', 'info');
+}
+
+function simpanKursusModal() {
+  renderTable();
+  closeModal();
+  showToast('✅ Perubahan kursus tersimpan', 'success');
+}
+
+function closeModal() {
+  document.getElementById('kursusModal').classList.remove('open');
+  document.getElementById('kursusInput').value = '';
+  modalNpsn = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('kursusModal')) closeModal();
+}
+
+// Tutup modal dengan ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ============================================================
+// STATUS NONAKTIF — tampil/sembunyikan field terakhir update
+// ============================================================
+function onStatusChange() {
+  const val = document.querySelector('input[name="statusKelas"]:checked')?.value;
+  document.getElementById('nonaktifDetail').style.display = (val === 'nonaktif') ? 'block' : 'none';
+}
+
+
 function showDebug() {
   const dp = document.getElementById('debugPanel');
   const dc = document.getElementById('debugContent');
