@@ -332,6 +332,7 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
   </div>
   <div class="header-right">
     <span class="sync-status" id="syncStatus">—</span>
+    <button class="sync-btn" onclick="toggleConfig()" id="btnConfig" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25)">⚙️ Konfigurasi</button>
     <button class="sync-btn" onclick="showDebug()" style="background:rgba(251,191,36,.2);border-color:rgba(251,191,36,.5)">🔍 Debug</button>
     <button class="sync-btn" onclick="clearCache()" style="background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.45)">🗑 Clear Cache</button>
     <button class="sync-btn" onclick="syncFromSheet()">🔄 Sync Sheet</button>
@@ -341,33 +342,34 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
 <div class="main">
 
   <!-- CONFIG GOOGLE SHEET -->
-  <div class="config-bar">
-    <label>🔗 URL Google Sheets CSV:</label>
-    <input type="text" id="sheetUrl" placeholder="Masukkan URL CSV Export Google Sheets..."/>
-    <button class="config-save" onclick="saveSheetConfig()">Simpan & Sync</button>
-    <div class="config-note">
-      💡 Cara: Buka Google Sheets → File → Publikasikan ke web → Pilih sheet → Format CSV → Salin link.<br>
-      Atau ganti bagian <code>/edit?...</code> dengan <code>/export?format=csv&gid=0</code> pada URL sheet Anda.
-    </div>
-  </div>
-
-  <!-- CONFIG APPS SCRIPT -->
-  <div class="config-bar-gas">
-    <label>⚡ Apps Script:</label>
-    <div class="gas-fields">
-      <div class="gas-field">
-        <label>URL Web App</label>
-        <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+  <div id="configWrap" style="display:none">
+    <div class="config-bar">
+      <label>🔗 URL Google Sheets CSV:</label>
+      <input type="text" id="sheetUrl" placeholder="Masukkan URL CSV Export Google Sheets..."/>
+      <button class="config-save" onclick="saveSheetConfig()">Simpan & Sync</button>
+      <div class="config-note">
+        💡 Cara: Buka Google Sheets → File → Publikasikan ke web → Pilih sheet → Format CSV → Salin link.<br>
+        Atau ganti bagian <code>/edit?...</code> dengan <code>/export?format=csv&gid=0</code> pada URL sheet Anda.
       </div>
-      <div class="gas-field" style="max-width:220px">
-        <label>Secret Key</label>
-        <input type="password" id="gasKey" placeholder="Kunci rahasia dari script"/>
-      </div>
-      <button class="gas-save" onclick="saveGasConfig()">💾 Simpan</button>
     </div>
-    <div class="gas-status idle" id="gasStatus">
-      <span class="gas-dot idle" id="gasDot"></span>
-      <span id="gasStatusText">Belum dikonfigurasi — data form hanya tersimpan lokal</span>
+    <!-- CONFIG APPS SCRIPT -->
+    <div class="config-bar-gas">
+      <label>⚡ Apps Script:</label>
+      <div class="gas-fields">
+        <div class="gas-field">
+          <label>URL Web App</label>
+          <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+        </div>
+        <div class="gas-field" style="max-width:220px">
+          <label>Secret Key</label>
+          <input type="password" id="gasKey" placeholder="Kunci rahasia dari script"/>
+        </div>
+        <button class="gas-save" onclick="saveGasConfig()">💾 Simpan</button>
+      </div>
+      <div class="gas-status idle" id="gasStatus">
+        <span class="gas-dot idle" id="gasDot"></span>
+        <span id="gasStatusText">Belum dikonfigurasi — data form hanya tersimpan lokal</span>
+      </div>
     </div>
   </div>
 
@@ -558,8 +560,11 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
 const STORAGE_KEY = 'lkp_v3';
 const CONFIG_KEY  = 'lkp_cfg_v3';
 let masterData = [], localData = [], filteredData = [], currentFilteredData = [];
-let sheetUrl = '', gasUrl = '', gasKey = '', currentPage = 1, pageSize = 20, modalNpsn = '';
-let lastSavedEntry = null; // entry terakhir yang disimpan, siap dikirim ke Sheet
+let sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQkHOTGnjaFJgU-tIuSWCLHG1JgW-ZWlrxp6TxrpqR-pJxBIVfeanNKYszl7KZ1JcgEZd16Og28b7Fy/pub?output=csv';
+let gasUrl  = 'https://script.google.com/macros/s/AKfycbxW-Eirs-K_X4lmMNiMBhdNTlaaif4RTX1gLmnrGArVfLXESJeyXPzRww63x7ayuGtAmw/exec';
+let gasKey  = '123';
+let currentPage = 1, pageSize = 20, modalNpsn = '';
+let lastSavedEntry = null;
 
 // Rumpun Keterampilan Perdirjen No.49/2025
 const RUMPUN = [
@@ -705,21 +710,35 @@ function syncProgAll(key,bidang,program){
   m.checked=cbs.every(c=>c.checked); m.indeterminate=cbs.some(c=>c.checked)&&!m.checked;
 }
 
+function toggleConfig(){
+  const wrap = document.getElementById('configWrap');
+  const btn  = document.getElementById('btnConfig');
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  btn.style.background = isOpen ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.3)';
+}
+
 // ============================================================
 // CONFIG & SYNC
 // ============================================================
+// URL & key default (sudah tertanam, tidak perlu diisi ulang di setiap gadget)
+const DEFAULT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQkHOTGnjaFJgU-tIuSWCLHG1JgW-ZWlrxp6TxrpqR-pJxBIVfeanNKYszl7KZ1JcgEZd16Og28b7Fy/pub?output=csv';
+const DEFAULT_GAS_URL   = 'https://script.google.com/macros/s/AKfycbxW-Eirs-K_X4lmMNiMBhdNTlaaif4RTX1gLmnrGArVfLXESJeyXPzRww63x7ayuGtAmw/exec';
+const DEFAULT_GAS_KEY   = '123';
+
 function loadConfig(){
-  const s=localStorage.getItem(CONFIG_KEY);
-  if(s){
-    const c=JSON.parse(s);
-    sheetUrl=c.sheetUrl||'';
-    gasUrl=c.gasUrl||'';
-    gasKey=c.gasKey||'';
-    document.getElementById('sheetUrl').value=sheetUrl;
-    document.getElementById('gasUrl').value=gasUrl;
-    document.getElementById('gasKey').value=gasKey;
-    if(gasUrl) setGasStatus('idle','✅ Apps Script terkonfigurasi — data form akan dikirim ke Sheet');
-  }
+  const s = localStorage.getItem(CONFIG_KEY);
+  const c = s ? JSON.parse(s) : {};
+  // Gunakan nilai dari LocalStorage jika ada, fallback ke default
+  sheetUrl = c.sheetUrl || DEFAULT_SHEET_URL;
+  gasUrl   = c.gasUrl   || DEFAULT_GAS_URL;
+  gasKey   = c.gasKey   || DEFAULT_GAS_KEY;
+  // Isi field di UI
+  document.getElementById('sheetUrl').value = sheetUrl;
+  document.getElementById('gasUrl').value   = gasUrl;
+  document.getElementById('gasKey').value   = gasKey;
+  // Tampilkan status Apps Script
+  if(gasUrl) setGasStatus('idle','✅ Apps Script terkonfigurasi — data form akan dikirim ke Sheet');
 }
 function saveSheetConfig(){
   sheetUrl=document.getElementById('sheetUrl').value.trim();
