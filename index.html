@@ -215,7 +215,104 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
   .tfl-search input{min-width:unset}
   .modal-box{max-height:94vh}
 }
-</style>
+
+/* FILTER ROW 2 - status, bimtek, program */
+.table-filter-bar-2{
+  padding:9px 16px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;
+  border-bottom:1px solid var(--border);background:#f0f4ff;
+}
+.filter-program-wrap{position:relative;display:flex;flex-direction:column;gap:3px}
+.filter-program-wrap label{font-size:.7rem;font-weight:700;color:var(--text2)}
+.filter-program-btn{
+  display:flex;align-items:center;gap:6px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  padding:6px 10px;font-family:inherit;font-size:.8rem;color:var(--text2);
+  background:#fff;cursor:pointer;min-width:190px;justify-content:space-between;
+  transition:border .2s;
+}
+.filter-program-btn:focus,.filter-program-btn.active{border-color:var(--primary);color:var(--text)}
+.filter-program-dropdown{
+  display:none;position:absolute;top:100%;left:0;z-index:500;
+  background:#fff;border:1.5px solid var(--primary);border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-lg);min-width:320px;max-height:340px;overflow-y:auto;
+  margin-top:3px;
+}
+.filter-program-dropdown.open{display:block}
+.fpd-search{padding:8px 10px;border-bottom:1px solid var(--border)}
+.fpd-search input{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:5px 9px;font-family:inherit;font-size:.8rem;outline:none}
+.fpd-search input:focus{border-color:var(--primary)}
+.fpd-bidang{font-size:.7rem;font-weight:700;color:var(--primary);padding:6px 10px 2px;text-transform:uppercase;letter-spacing:.05em;border-top:1px solid var(--border)}
+.fpd-item{display:flex;align-items:center;gap:7px;padding:5px 12px;font-size:.8rem;cursor:pointer;transition:background .1s}
+.fpd-item:hover{background:var(--primary-light)}
+.fpd-item input{accent-color:var(--primary);width:13px;height:13px;flex-shrink:0}
+.fpd-footer{padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:6px}
+.fpd-btn{flex:1;padding:5px;font-family:inherit;font-size:.75rem;font-weight:600;border-radius:5px;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text2);transition:all .15s}
+.fpd-btn.apply{background:var(--primary);border-color:var(--primary);color:#fff}
+.fpd-btn.apply:hover{opacity:.9}
+
+/* ACTIVE FILTER TAGS */
+.active-filters{display:flex;flex-wrap:wrap;gap:5px;padding:7px 16px;background:#e8f0fe;border-bottom:1px solid var(--border)}
+.active-filters:empty{display:none}
+.filter-tag{display:inline-flex;align-items:center;gap:5px;background:var(--primary);color:#fff;border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:600}
+.filter-tag button{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:.8rem;padding:0;line-height:1;transition:color .15s}
+.filter-tag button:hover{color:#fff}
+
+/* APPS SCRIPT CONFIG */
+.config-bar-gas{
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+  border:1.5px dashed var(--accent2);
+  border-radius:var(--radius);padding:14px 18px;
+  margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap
+}
+.config-bar-gas label{font-size:.8rem;font-weight:700;color:#065f46;white-space:nowrap;padding-top:8px}
+.gas-fields{display:flex;gap:8px;flex:1;flex-wrap:wrap;align-items:flex-start}
+.gas-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:220px}
+.gas-field label{font-size:.72rem;font-weight:700;color:#065f46}
+.gas-field input{
+  border:1.5px solid #86efac;border-radius:var(--radius-sm);
+  padding:7px 11px;font-family:'DM Mono',monospace;font-size:.8rem;
+  color:var(--text);background:#fff;outline:none;transition:border .2s;width:100%
+}
+.gas-field input:focus{border-color:var(--accent2)}
+.gas-save{
+  background:var(--accent2);border:none;border-radius:var(--radius-sm);
+  padding:8px 16px;font-family:inherit;font-size:.8rem;font-weight:700;
+  color:#fff;cursor:pointer;transition:opacity .2s;white-space:nowrap;align-self:flex-end
+}
+.gas-save:hover{opacity:.85}
+.gas-status{
+  width:100%;display:flex;align-items:center;gap:8px;
+  font-size:.75rem;padding:6px 10px;border-radius:6px;margin-top:4px
+}
+.gas-status.idle{background:#f0fdf4;color:#065f46}
+.gas-status.sending{background:#fef3c7;color:#92400e}
+.gas-status.ok{background:#d1fae5;color:#065f46}
+.gas-status.fail{background:#fee2e2;color:#991b1b}
+.gas-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gas-dot.idle{background:#86efac}
+.gas-dot.sending{background:#fcd34d;animation:pulse .8s ease-in-out infinite}
+.gas-dot.ok{background:var(--accent2)}
+.gas-dot.fail{background:var(--accent3)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* SHEET SYNC INDICATOR di form */
+.sheet-sync-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:var(--radius-sm);border:1.5px solid var(--border);
+  background:var(--bg);flex-wrap:wrap
+}
+.sheet-sync-info{font-size:.78rem;color:var(--text2)}
+.sheet-sync-info b{color:var(--text);font-weight:600}
+.btn-send-sheet{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(90deg,#059669,#10b981);
+  color:#fff;border:none;border-radius:var(--radius-sm);
+  padding:8px 18px;font-family:inherit;font-size:.82rem;font-weight:700;
+  cursor:pointer;transition:opacity .2s,transform .15s;white-space:nowrap
+}
+.btn-send-sheet:hover{opacity:.9;transform:translateY(-1px)}
+.btn-send-sheet:disabled{opacity:.5;cursor:not-allowed;transform:none}</style>
 </head>
 <body>
 
@@ -243,7 +340,7 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
 
 <div class="main">
 
-  <!-- CONFIG -->
+  <!-- CONFIG GOOGLE SHEET -->
   <div class="config-bar">
     <label>🔗 URL Google Sheets CSV:</label>
     <input type="text" id="sheetUrl" placeholder="Masukkan URL CSV Export Google Sheets..."/>
@@ -251,6 +348,26 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
     <div class="config-note">
       💡 Cara: Buka Google Sheets → File → Publikasikan ke web → Pilih sheet → Format CSV → Salin link.<br>
       Atau ganti bagian <code>/edit?...</code> dengan <code>/export?format=csv&gid=0</code> pada URL sheet Anda.
+    </div>
+  </div>
+
+  <!-- CONFIG APPS SCRIPT -->
+  <div class="config-bar-gas">
+    <label>⚡ Apps Script:</label>
+    <div class="gas-fields">
+      <div class="gas-field">
+        <label>URL Web App</label>
+        <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+      </div>
+      <div class="gas-field" style="max-width:220px">
+        <label>Secret Key</label>
+        <input type="password" id="gasKey" placeholder="Kunci rahasia dari script"/>
+      </div>
+      <button class="gas-save" onclick="saveGasConfig()">💾 Simpan</button>
+    </div>
+    <div class="gas-status idle" id="gasStatus">
+      <span class="gas-dot idle" id="gasDot"></span>
+      <span id="gasStatusText">Belum dikonfigurasi — data form hanya tersimpan lokal</span>
     </div>
   </div>
 
@@ -284,8 +401,48 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
       <div class="tfl-group"><label>🗺 Provinsi</label><select id="filterProvinsi" onchange="applyFilter()"><option value="">Semua Provinsi</option></select></div>
       <div class="tfl-group"><label>🏙 Kab/Kota</label><select id="filterKabkota" onchange="applyFilter()"><option value="">Semua Kab/Kota</option></select></div>
       <div class="tfl-group tfl-search"><label>🔍 Cari</label><input type="text" id="searchInput" placeholder="Nama LKP atau NPSN..." oninput="applyFilter()"/></div>
-      <button class="reset-filter" onclick="resetFilter()">✕ Reset</button>
+      <button class="reset-filter" onclick="resetFilter()">✕ Reset Semua</button>
     </div>
+    <!-- Filter baris 2 -->
+    <div class="table-filter-bar-2">
+      <div class="tfl-group">
+        <label>📊 Status Kelas</label>
+        <select id="filterStatus" onchange="applyFilter()">
+          <option value="">Semua Status</option>
+          <option value="berjalan">✅ Sudah Berjalan</option>
+          <option value="lengkap_kosong">📤 Materi Lengkap</option>
+          <option value="belum_lengkap">⚠️ Belum Lengkap</option>
+          <option value="punya_akun">🔑 Memiliki Akun</option>
+          <option value="nonaktif">🚫 Dinonaktifkan</option>
+          <option value="-">— Belum Akun</option>
+        </select>
+      </div>
+      <div class="tfl-group">
+        <label>📚 Bimtek</label>
+        <select id="filterBimtek" onchange="applyFilter()">
+          <option value="">Semua</option>
+          <option value="ya">✅ Sudah Bimtek</option>
+          <option value="tidak">❌ Belum Bimtek</option>
+        </select>
+      </div>
+      <div class="filter-program-wrap">
+        <label>💼 Program Keterampilan</label>
+        <button type="button" class="filter-program-btn" id="filterProgramBtn" onclick="toggleProgramDropdown()">
+          <span id="filterProgramLabel">Semua Program</span>
+          <span>▾</span>
+        </button>
+        <div class="filter-program-dropdown" id="filterProgramDropdown">
+          <div class="fpd-search"><input type="text" id="fpdSearch" placeholder="Cari jenis keterampilan..." oninput="renderProgramDropdown(this.value)"/></div>
+          <div id="fpdList"></div>
+          <div class="fpd-footer">
+            <button class="fpd-btn" onclick="clearProgramFilter()">Hapus Pilihan</button>
+            <button class="fpd-btn apply" onclick="applyProgramFilter()">Terapkan ✓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Active filter tags -->
+    <div class="active-filters" id="activeFilters"></div>
     <div class="table-wrapper">
       <table>
         <thead><tr>
@@ -352,8 +509,17 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
         <div class="form-group full"><label>Judul Kursus</label><input type="text" id="f_judul" placeholder="Judul kursus yang diselenggarakan"/></div>
       </div>
       <div class="form-actions">
-        <button class="btn-save" onclick="saveData()">💾 Simpan Data</button>
+        <button class="btn-save" onclick="saveData()">💾 Simpan Lokal</button>
         <button class="btn-reset" onclick="resetForm()">↺ Reset Form</button>
+      </div>
+      <!-- Status & tombol kirim ke Google Sheets -->
+      <div class="sheet-sync-row" id="sheetSyncRow" style="display:none">
+        <div class="sheet-sync-info" id="sheetSyncInfo">
+          ✅ Data tersimpan lokal. Klik untuk juga mengirim ke Google Sheets.
+        </div>
+        <button class="btn-send-sheet" id="btnSendSheet" onclick="sendLastSavedToSheet()">
+          📤 Kirim ke Google Sheets
+        </button>
       </div>
     </div>
   </div>
@@ -392,7 +558,8 @@ tbody td{padding:9px 11px;color:var(--text);vertical-align:middle}
 const STORAGE_KEY = 'lkp_v3';
 const CONFIG_KEY  = 'lkp_cfg_v3';
 let masterData = [], localData = [], filteredData = [], currentFilteredData = [];
-let sheetUrl = '', currentPage = 1, pageSize = 20, modalNpsn = '';
+let sheetUrl = '', gasUrl = '', gasKey = '', currentPage = 1, pageSize = 20, modalNpsn = '';
+let lastSavedEntry = null; // entry terakhir yang disimpan, siap dikirim ke Sheet
 
 // Rumpun Keterampilan Perdirjen No.49/2025
 const RUMPUN = [
@@ -543,12 +710,37 @@ function syncProgAll(key,bidang,program){
 // ============================================================
 function loadConfig(){
   const s=localStorage.getItem(CONFIG_KEY);
-  if(s){const c=JSON.parse(s);sheetUrl=c.sheetUrl||'';document.getElementById('sheetUrl').value=sheetUrl;}
+  if(s){
+    const c=JSON.parse(s);
+    sheetUrl=c.sheetUrl||'';
+    gasUrl=c.gasUrl||'';
+    gasKey=c.gasKey||'';
+    document.getElementById('sheetUrl').value=sheetUrl;
+    document.getElementById('gasUrl').value=gasUrl;
+    document.getElementById('gasKey').value=gasKey;
+    if(gasUrl) setGasStatus('idle','✅ Apps Script terkonfigurasi — data form akan dikirim ke Sheet');
+  }
 }
 function saveSheetConfig(){
   sheetUrl=document.getElementById('sheetUrl').value.trim();
-  localStorage.setItem(CONFIG_KEY,JSON.stringify({sheetUrl}));
+  localStorage.setItem(CONFIG_KEY,JSON.stringify({sheetUrl,gasUrl,gasKey}));
   if(sheetUrl) syncFromSheet(); else showToast('URL belum diisi!','error');
+}
+function saveGasConfig(){
+  gasUrl=document.getElementById('gasUrl').value.trim();
+  gasKey=document.getElementById('gasKey').value.trim();
+  if(!gasUrl){showToast('URL Apps Script harus diisi!','error');return;}
+  localStorage.setItem(CONFIG_KEY,JSON.stringify({sheetUrl,gasUrl,gasKey}));
+  setGasStatus('idle','✅ Apps Script terkonfigurasi — data form akan otomatis dikirim ke Sheet');
+  showToast('✅ Konfigurasi Apps Script tersimpan!','success');
+}
+function setGasStatus(type, msg){
+  const el=document.getElementById('gasStatus');
+  const dot=document.getElementById('gasDot');
+  const txt=document.getElementById('gasStatusText');
+  el.className='gas-status '+type;
+  dot.className='gas-dot '+type;
+  txt.textContent=msg;
 }
 
 async function syncFromSheet(){
@@ -742,24 +934,134 @@ function mergeData(){
 // ============================================================
 // FILTER & STATS
 // ============================================================
+let selectedPrograms = []; // program keterampilan yang dipilih untuk filter
+
 function applyFilter(){
   mergeData();
   const prov=document.getElementById('filterProvinsi').value.toLowerCase();
   const kab=document.getElementById('filterKabkota').value.toLowerCase();
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const status=document.getElementById('filterStatus').value;
+  const bimtek=document.getElementById('filterBimtek').value;
+
   let data=filteredData;
-  if(prov)data=data.filter(r=>(r.provinsi||'').toLowerCase()===prov);
-  if(kab)data=data.filter(r=>(r.kabkota||'').toLowerCase()===kab);
-  if(q)data=data.filter(r=>(r.nama||'').toLowerCase().includes(q)||(r.npsn||'').toLowerCase().includes(q));
+  if(prov) data=data.filter(r=>(r.provinsi||'').toLowerCase()===prov);
+  if(kab)  data=data.filter(r=>(r.kabkota||'').toLowerCase()===kab);
+  if(q)    data=data.filter(r=>(r.nama||'').toLowerCase().includes(q)||(r.npsn||'').toLowerCase().includes(q));
+  if(status) data=data.filter(r=>r.statusKelas===status);
+  if(bimtek) data=data.filter(r=>r.bimtek===bimtek);
+  if(selectedPrograms.length>0){
+    data=data.filter(r=>{
+      const prog=(r.program||'').toLowerCase();
+      return selectedPrograms.some(p=>prog.includes(p.toLowerCase()));
+    });
+  }
+
   currentFilteredData=data;
   currentPage=1;
   renderTable();
   updateStats(data);
+  renderActiveFilters();
 }
+
 function resetFilter(){
   document.getElementById('filterProvinsi').value='';
   document.getElementById('filterKabkota').value='';
   document.getElementById('searchInput').value='';
+  document.getElementById('filterStatus').value='';
+  document.getElementById('filterBimtek').value='';
+  selectedPrograms=[];
+  updateProgramBtnLabel();
+  document.querySelectorAll('#fpdList input[type="checkbox"]').forEach(cb=>cb.checked=false);
+  applyFilter();
+}
+
+function renderActiveFilters(){
+  const bar=document.getElementById('activeFilters');
+  const tags=[];
+  const prov=document.getElementById('filterProvinsi');
+  const kab=document.getElementById('filterKabkota');
+  const status=document.getElementById('filterStatus');
+  const bimtek=document.getElementById('filterBimtek');
+  const q=document.getElementById('searchInput').value.trim();
+
+  if(prov.value) tags.push({label:'🗺 '+prov.options[prov.selectedIndex].text, clear:()=>{prov.value='';applyFilter();}});
+  if(kab.value)  tags.push({label:'🏙 '+kab.options[kab.selectedIndex].text, clear:()=>{kab.value='';applyFilter();}});
+  if(status.value) tags.push({label:'📊 '+status.options[status.selectedIndex].text, clear:()=>{status.value='';applyFilter();}});
+  if(bimtek.value) tags.push({label:'📚 '+bimtek.options[bimtek.selectedIndex].text, clear:()=>{bimtek.value='';applyFilter();}});
+  if(q) tags.push({label:'🔍 "'+q+'"', clear:()=>{document.getElementById('searchInput').value='';applyFilter();}});
+  selectedPrograms.forEach((p,i)=>tags.push({label:'💼 '+p, clear:()=>{selectedPrograms.splice(i,1);updateProgramBtnLabel();document.querySelectorAll('#fpdList input[type="checkbox"]').forEach(cb=>{if(cb.value===p)cb.checked=false;});applyFilter();}}));
+
+  bar.innerHTML=tags.map((t,i)=>`<span class="filter-tag">${t.label}<button onclick="activeFilterClear(${i})">×</button></span>`).join('');
+  // Simpan referensi clear functions
+  bar._clearFns=tags.map(t=>t.clear);
+}
+function activeFilterClear(i){
+  const bar=document.getElementById('activeFilters');
+  if(bar._clearFns&&bar._clearFns[i])bar._clearFns[i]();
+}
+
+// ============================================================
+// PROGRAM KETERAMPILAN DROPDOWN FILTER
+// ============================================================
+function toggleProgramDropdown(){
+  const dd=document.getElementById('filterProgramDropdown');
+  const btn=document.getElementById('filterProgramBtn');
+  const isOpen=dd.classList.contains('open');
+  if(!isOpen){
+    renderProgramDropdown('');
+    dd.classList.add('open');
+    btn.classList.add('active');
+    document.getElementById('fpdSearch').focus();
+    // Tutup jika klik di luar
+    setTimeout(()=>document.addEventListener('click',closeProgramDropdownOutside),10);
+  } else {
+    closeProgramDropdown();
+  }
+}
+function closeProgramDropdown(){
+  document.getElementById('filterProgramDropdown').classList.remove('open');
+  document.getElementById('filterProgramBtn').classList.remove('active');
+  document.removeEventListener('click',closeProgramDropdownOutside);
+}
+function closeProgramDropdownOutside(e){
+  const wrap=document.querySelector('.filter-program-wrap');
+  if(!wrap.contains(e.target))closeProgramDropdown();
+}
+function renderProgramDropdown(q){
+  const list=document.getElementById('fpdList');
+  const ql=q.toLowerCase();
+  let html='';
+  RUMPUN.forEach(b=>{
+    const jenisFiltered=b.p.flatMap(pg=>pg.j).filter(j=>!ql||j.toLowerCase().includes(ql));
+    if(!jenisFiltered.length)return;
+    html+=`<div class="fpd-bidang">${b.no}. ${b.b}</div>`;
+    jenisFiltered.forEach(j=>{
+      const checked=selectedPrograms.includes(j)?'checked':'';
+      html+=`<label class="fpd-item"><input type="checkbox" value="${j}" ${checked} onchange="onProgramCheckChange(this)"/>${j}</label>`;
+    });
+  });
+  list.innerHTML=html||'<div style="padding:12px;color:var(--text3);font-size:.8rem;text-align:center">Tidak ditemukan</div>';
+}
+function onProgramCheckChange(cb){
+  if(cb.checked){if(!selectedPrograms.includes(cb.value))selectedPrograms.push(cb.value);}
+  else{selectedPrograms=selectedPrograms.filter(p=>p!==cb.value);}
+  updateProgramBtnLabel();
+}
+function updateProgramBtnLabel(){
+  const lbl=document.getElementById('filterProgramLabel');
+  if(!selectedPrograms.length){lbl.textContent='Semua Program';}
+  else if(selectedPrograms.length===1){lbl.textContent=selectedPrograms[0];}
+  else{lbl.textContent=selectedPrograms.length+' program dipilih';}
+}
+function clearProgramFilter(){
+  selectedPrograms=[];
+  document.querySelectorAll('#fpdList input[type="checkbox"]').forEach(cb=>cb.checked=false);
+  updateProgramBtnLabel();
+}
+function applyProgramFilter(){
+  updateProgramBtnLabel();
+  closeProgramDropdown();
   applyFilter();
 }
 function buildFilters(){
@@ -972,6 +1274,18 @@ function saveData(){
   const statusEl=document.querySelector('input[name="statusKelas"]:checked');
   const programs=[...document.querySelectorAll('input[name="program"]:checked')].map(c=>c.value).join(', ');
   const existing=localData.find(r=>r.npsn===npsn);
+
+  // Mapping status internal → label asli di sheet
+  const statusRawMap={
+    'berjalan':'Sudah berjalan',
+    'lengkap_kosong':'Upload kelas materi lengkap',
+    'belum_lengkap':'Upload kelas tapi belum lengkap',
+    'punya_akun':'Memiliki akun',
+    'nonaktif':'Dinonaktifkan',
+    '-':'Belum memiliki akun'
+  };
+  const statusVal=statusEl?statusEl.value:'-';
+
   const entry={
     npsn,nama,
     alamat:document.getElementById('f_alamat').value.trim(),
@@ -981,19 +1295,41 @@ function saveData(){
     hp:document.getElementById('f_hp').value.trim(),
     email:document.getElementById('f_email').value.trim(),
     program:programs,
-    statusKelas:statusEl?statusEl.value:'-',
+    statusKelas:statusVal,
+    statusKelasRaw:statusRawMap[statusVal]||statusVal,
     terakhirUpdate:document.getElementById('f_terakhirUpdate').value||'',
     bimtek:document.getElementById('f_bimtek').value,
+    bimtekRaw:document.getElementById('f_bimtek').value==='ya'?'Sudah':document.getElementById('f_bimtek').value==='tidak'?'Belum':'',
     peserta:document.getElementById('f_peserta').value||'0',
     lulusan:document.getElementById('f_lulusan').value||'0',
     judul:document.getElementById('f_judul').value.trim(),
     kursusLokal:existing?.kursusLokal||[],
     _savedAt:new Date().toISOString()
   };
+
+  // Simpan lokal
   const idx=localData.findIndex(r=>r.npsn===npsn);
   if(idx>=0)localData[idx]=entry;else localData.push(entry);
-  saveLocalData();mergeData();applyFilter();
-  buildFilters();resetForm();
+  saveLocalData();mergeData();applyFilter();buildFilters();
+
+  // Simpan referensi untuk dikirim ke Sheet
+  lastSavedEntry=entry;
+
+  // Tampilkan panel kirim ke Sheet
+  const syncRow=document.getElementById('sheetSyncRow');
+  const syncInfo=document.getElementById('sheetSyncInfo');
+  syncRow.style.display='flex';
+  if(gasUrl){
+    syncInfo.innerHTML=`✅ <b>${nama}</b> tersimpan lokal. Klik untuk mengirim ke Google Sheets.`;
+    document.getElementById('btnSendSheet').disabled=false;
+    // Auto-kirim ke Sheet jika Apps Script sudah dikonfigurasi
+    sendLastSavedToSheet(entry);
+  } else {
+    syncInfo.innerHTML=`✅ <b>${nama}</b> tersimpan lokal. Konfigurasi Apps Script untuk kirim ke Google Sheets.`;
+    document.getElementById('btnSendSheet').disabled=true;
+    document.getElementById('btnSendSheet').textContent='⚙️ Apps Script belum dikonfigurasi';
+  }
+
   showToast('✅ Data berhasil disimpan!','success');
 }
 function resetForm(){
@@ -1002,6 +1338,97 @@ function resetForm(){
   document.querySelectorAll('input[name="program"]').forEach(cb=>cb.checked=false);
   setBimtek('');
   document.getElementById('nonaktifDetail').style.display='none';
+  document.getElementById('sheetSyncRow').style.display='none';
+  lastSavedEntry=null;
+}
+
+// ============================================================
+// APPS SCRIPT — KIRIM DATA KE GOOGLE SHEETS
+// ============================================================
+async function sendLastSavedToSheet(entryOverride){
+  const entry=entryOverride||lastSavedEntry;
+  if(!entry){showToast('Tidak ada data yang bisa dikirim','error');return;}
+  if(!gasUrl){
+    showToast('Konfigurasi URL Apps Script terlebih dahulu','error');
+    return;
+  }
+
+  // Update UI: sedang mengirim
+  const btn=document.getElementById('btnSendSheet');
+  const info=document.getElementById('sheetSyncInfo');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Mengirim...';}
+  setGasStatus('sending','⏳ Mengirim data ke Google Sheets...');
+
+  try{
+    // Apps Script tidak support CORS POST langsung dari browser
+    // Gunakan no-cors mode, atau gunakan teknik form-encoded
+    const payload={
+      key: gasKey,
+      data: {
+        npsn:          entry.npsn,
+        nama:          entry.nama,
+        alamat:        entry.alamat,
+        provinsi:      entry.provinsi,
+        kabkota:       entry.kabkota,
+        pimpinan:      entry.pimpinan,
+        hp:            entry.hp,
+        email:         entry.email,
+        program:       entry.program,
+        statusKelasRaw:entry.statusKelasRaw||entry.statusKelas,
+        bimtekRaw:     entry.bimtekRaw||entry.bimtek,
+        peserta:       entry.peserta,
+        lulusan:       entry.lulusan,
+        judul:         entry.judul,
+        terakhirUpdate:entry.terakhirUpdate||''
+      }
+    };
+
+    const res=await fetch(gasUrl,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'}, // pakai text/plain agar tidak trigger CORS preflight
+      body:JSON.stringify(payload)
+    });
+
+    // Apps Script dengan no-cors tidak mengembalikan response body yang bisa dibaca
+    // Jika status ok, anggap berhasil
+    if(res.ok||res.type==='opaque'){
+      // Coba baca response jika bisa
+      let result=null;
+      try{ result=await res.json(); }catch(e){}
+
+      if(result&&result.ok===false){
+        throw new Error(result.error||'Server menolak request');
+      }
+
+      // Sukses
+      setGasStatus('ok',`✅ Data "${entry.nama}" berhasil dikirim ke Google Sheets — ${new Date().toLocaleTimeString('id-ID')}`);
+      if(info) info.innerHTML=`✅ <b>${entry.nama}</b> berhasil masuk ke Google Sheets!`;
+      if(btn){btn.textContent='✅ Terkirim';btn.style.background='var(--accent2)';}
+      showToast(`✅ ${entry.nama} berhasil dikirim ke Sheet!`,'success');
+      // Auto sync sheet setelah 2 detik
+      setTimeout(()=>{
+        if(sheetUrl) syncFromSheet();
+      },2000);
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  }catch(e){
+    const errMsg=e.message||'Gagal terhubung';
+    // Cek apakah error CORS (umum terjadi)
+    const isCors=errMsg.includes('Failed to fetch')||errMsg.includes('NetworkError')||errMsg.includes('CORS');
+    const helpMsg=isCors
+      ? 'Gagal — pastikan Apps Script sudah di-deploy sebagai Web App (Anyone can access)'
+      : 'Gagal: '+errMsg;
+
+    setGasStatus('fail','❌ '+helpMsg);
+    if(info) info.innerHTML=`❌ Gagal kirim ke Sheet: <b>${isCors?'CORS/Network Error — cek deployment Apps Script':errMsg}</b>`;
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='🔄 Coba Lagi';
+      btn.style.background='';
+    }
+    showToast('❌ Gagal kirim ke Sheet: '+errMsg,'error');
+  }
 }
 function editRow(npsn){
   const r=filteredData.find(x=>x.npsn===npsn);if(!r)return;
